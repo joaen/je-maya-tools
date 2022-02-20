@@ -40,29 +40,31 @@ def rotate_ctrl_shape(degrees):
 def get_sphere():
     # Create circles and add to list
     circles = []
-    for n in range(0, 3):
+    for n in range(0, 5):
         circles.append(pm.circle(normal=(0,0,0), center=(0,0,0))[0])
 
-    move_rotate_scale(circles[0], [0,0,0], [0,0,0], [1,1,1])
-    move_rotate_scale(circles[1], [0,0,0], [0,-90,0], [1,1,1])
-    move_rotate_scale(circles[2], [0,0,0], [90,0,0], [1,1,1])
+    circles[0].setRotation([0, 45, 0])
+    circles[1].setRotation([0, -45, 0])
+    circles[2].setRotation([0, -90, 0])
+    circles[3].setRotation([90, 0, 0])
     
     # Combines circles
-    shape_nodes = pm.listRelatives(circles, s=True)
+    # shape_nodes = pm.listRelatives(circles, s=True)
+    # output_node = pm.group(em=True, name="newCtrl")
+    # pm.makeIdentity(circles, apply=True, t=True, r=True, s=True)
+    # pm.parent(shape_nodes, output_node, shape=True, relative=True)
+    # pm.delete(shape_nodes, constructionHistory=True)
+
     output_node = pm.group(em=True, name="newCtrl")
     pm.makeIdentity(circles, apply=True, t=True, r=True, s=True)
-    pm.parent(shape_nodes, output_node, shape=True, relative=True)
+    for c in circles:
+        c.getShape().setParent(output_node, shape=True, relative=True)
+        #THIS DOESNT WORK. WHY??
+        pm.delete(c, constructionHistory=True)
     pm.delete(circles)
-    pm.delete(shape_nodes, constructionHistory=True)
-    
+
     new_sphere = output_node
     return new_sphere
-
-
-def move_rotate_scale(obj, tran, rot, scale):
-    obj.setTranslation(tran)
-    obj.setRotation(rot)
-    obj.setScale(scale)
 
 def get_circle():
     return pm.circle(normal=(1, 0, 0), center=(0, 0, 0))
