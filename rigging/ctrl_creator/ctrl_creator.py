@@ -1,12 +1,23 @@
-from functools import partial
-import sys
-from collections import OrderedDict 
+'''
+Name: ctrl_creator
+Description: A tool for creating and editing rig controllers in Maya.
+ 
+Author: Joar Engberg 2022
+Installation:
+Add ctrl_creator.py to your Maya scripts folder (Username\Documents\maya\scripts).
+To start the tool within Maya, run these this lines of code from the Maya script editor or add them to a shelf button:
 
-import pyside2uic
+import ctrl_creator
+ctrl_creator.start()
+ 
+'''
+import sys
 import pymel.core as pm
 import maya.OpenMayaUI as omui
 from shiboken2 import wrapInstance
 from PySide2 import QtCore, QtGui, QtWidgets
+from functools import partial
+from collections import OrderedDict 
 
 
 def maya_main_window():
