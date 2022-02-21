@@ -177,7 +177,7 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         pm.select(new_shapes_list, replace=True)
 
     def scale_ctrl_shape(self, size):
-        stored_selection = pm.ls(selection=True)
+        stored_selection = pm.selected()
 
         for ctrl in pm.selected():
             pm.select(self.get_cvs(ctrl), replace=True)
@@ -188,7 +188,7 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
             pm.select(sel, add=True)
 
     def rotate_ctrl_shape(self, degrees):
-        stored_selection = pm.ls(selection=True)
+        stored_selection = pm.selected()
 
         for ctrl in pm.selected():
             ctrl_pivot = pm.xform(ctrl, query=True, translation=True, worldSpace=True)
@@ -220,7 +220,7 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         return output_node
 
     def set_ctrl_color(self, color_index):
-        selection = pm.ls(selection=True)
+        selection = pm.selected()
         for obj in selection:
             shape_nodes = pm.listRelatives(obj, shapes=True)
 
