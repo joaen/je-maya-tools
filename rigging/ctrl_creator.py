@@ -8,7 +8,7 @@ def get_cvs(object):
 
 def create_controller():
     for transform in pm.selected():
-        shape = get_sphere()
+        shape = create_sphere()
         pm.rename(shape, transform+"_CTRL")
         offset_grp = pm.group(shape)
         pm.rename(offset_grp, transform+"_CTRL_Grp")
@@ -37,7 +37,7 @@ def rotate_ctrl_shape(degrees):
     for sel in stored_selection:
         pm.select(sel, add=True)
 
-def get_sphere():
+def create_sphere():
     # Create circles
     circles = []
     for n in range(0, 5):
@@ -57,13 +57,13 @@ def get_sphere():
     pm.delete(circles)
     return output_node
 
-def get_circle():
+def create_circle():
     return pm.circle(normal=(1, 0, 0), center=(0, 0, 0))
 
-def get_cube():
+def create_cube():
     return pm.curve(name="shape123", d=1, p=[(-1, -1, 1), (-1, 1, 1), (1, 1, 1), (1, -1, 1), (-1, -1, 1), (-1, -1, -1), (-1, 1, -1), (-1, 1, 1), (-1, 1, -1), (1, 1, -1), (1, -1, -1), (-1, -1, -1), (1, -1, -1), (1, -1, 1), (1, 1, 1), (1, 1, -1)], k=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
 
-def get_square():
+def create_square():
     return pm.curve(d=1, p=[(-1, 0, 1), (-1, 0, 1), (0, 0, 1), (1, 0, 1), (1, 0, 1), (1, 0, -1), (-1, 0, -1), (-1, 0, 1)], k=[0,1,2,3,4,5,6,7])
 
 create_controller()
