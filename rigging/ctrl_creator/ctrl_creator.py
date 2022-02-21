@@ -31,7 +31,7 @@ def maya_main_window():
 class CtrlCreatorWindow(QtWidgets.QDialog):
 
     color_dict = OrderedDict([
-        ("gray", 0), ("darkblue", 5), ("blue", 6), ("cyan", 18), ("magenta", 9),
+        ("black", 0), ("darkblue", 5), ("blue", 6), ("cyan", 18), ("magenta", 9),
         ("red", 13), ("orange", 24), ("yellow", 17), ("lime", 14), ("white", 16)])
     
     color_dict_list = list(color_dict)
