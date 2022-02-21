@@ -17,25 +17,16 @@ def maya_main_window():
     else:
         return wrapInstance(long(main_window), QtWidgets.QWidget) # type: ignore
 
-class TemplateToolWindow(QtWidgets.QDialog):
+class CtrlCreatorWindow(QtWidgets.QDialog):
 
     color_dict = OrderedDict([
-        ("gray", 0),
-        ("darkblue", 5),
-        ("blue", 6),
-        ("cyan", 18),
-        ("magenta", 9),
-        ("red", 13),
-        ("orange", 24),
-        ("yellow", 17),
-        ("lime", 14),
-        ("white", 16)
-        ])
+        ("gray", 0), ("darkblue", 5), ("blue", 6), ("cyan", 18), ("magenta", 9),
+        ("red", 13), ("orange", 24), ("yellow", 17), ("lime", 14), ("white", 16)])
     
     color_dict_list = list(color_dict)
 
     def __init__(self):
-        super(TemplateToolWindow, self).__init__(maya_main_window())
+        super(CtrlCreatorWindow, self).__init__(maya_main_window())
         self.setWindowTitle("Ctrl Creator")
         
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
@@ -48,41 +39,37 @@ class TemplateToolWindow(QtWidgets.QDialog):
             self.setWindowFlags(QtCore.Qt.Tool)
  
     def create_ui_widgets(self):
-        self.template_label = QtWidgets.QLabel("Create controllers")
-        self.template_label.setStyleSheet("background-color: #5d5d5d; border: 1px solid #5d5d5d; border-radius: 2px;font-weight: bold;")
-        self.template_label.setFixedHeight(20)
+        self.create_label = QtWidgets.QLabel("Create controllers")
+        self.create_label.setStyleSheet("background-color: #5d5d5d; border: 1px solid #5d5d5d; border-radius: 2px;font-weight: bold;")
+        self.create_label.setFixedHeight(20)
 
-        self.template_label_e = QtWidgets.QLabel("Edit controllers")
-        self.template_label_e.setStyleSheet("background-color: #5d5d5d; border: 1px solid #5d5d5d; border-radius: 2px;font-weight: bold;")
-        self.template_label_e.setFixedHeight(20)
+        self.edit_label = QtWidgets.QLabel("Edit controllers")
+        self.edit_label.setStyleSheet("background-color: #5d5d5d; border: 1px solid #5d5d5d; border-radius: 2px;font-weight: bold;")
+        self.edit_label.setFixedHeight(20)
 
-        self.template_button = QtWidgets.QPushButton("TEMPLATE BUTTON")
-        self.template_combobox = QtWidgets.QComboBox()
-        self.template_combobox.addItem("TEMPLATE_COMBOBOX_ITEM")
-        self.template_textfield = QtWidgets.QLineEdit()
-        self.template_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        self.template_icon1_button = QtWidgets.QPushButton(QtGui.QIcon(":circle.png"), "Circle")
-        self.template_icon2_button = QtWidgets.QPushButton(QtGui.QIcon(":sphere.png"), "Sphere")
-        self.template_icon3_button = QtWidgets.QPushButton(QtGui.QIcon(":square.png"), "Square")
-        self.template_icon4_button = QtWidgets.QPushButton(QtGui.QIcon(":cube.png"), "Cube")
+        self.circle_button = QtWidgets.QPushButton(QtGui.QIcon(":circle.png"), "Circle")
+        self.sphere_button = QtWidgets.QPushButton(QtGui.QIcon(":sphere.png"), "Sphere")
+        self.square_button = QtWidgets.QPushButton(QtGui.QIcon(":square.png"), "Square")
+        self.cube_button = QtWidgets.QPushButton(QtGui.QIcon(":cube.png"), "Cube")
         
-        self.template_checkbox1 = QtWidgets.QCheckBox("ParentConstraint")
-        self.template_checkbox2 = QtWidgets.QCheckBox("Hide + lock unused attrs")
-        self.template_checkbox3 = QtWidgets.QCheckBox("_FK suffix")
+        self.constraint_checkbox = QtWidgets.QCheckBox("ParentConstraint")
+        self.lock_attr_checkbox = QtWidgets.QCheckBox("Hide + lock unused attrs")
+        self.add_suffix_checkbox = QtWidgets.QCheckBox("_FK suffix")
 
-        self.template_label1 = QtWidgets.QLabel("Scale:")
+        self.scale_label = QtWidgets.QLabel("Scale:")
         self.scale_up_button = QtWidgets.QPushButton("+")
         self.scale_up_button.setFixedWidth(30)
         self.scale_down_button = QtWidgets.QPushButton("-")
         self.scale_down_button.setFixedWidth(30)
-        self.template_label2 = QtWidgets.QLabel("Rotate:")
-        self.button_rotate_x = QtWidgets.QPushButton("X")
-        self.button_rotate_x.setFixedWidth(30)
-        self.button_rotate_y = QtWidgets.QPushButton("Y")
-        self.button_rotate_y.setFixedWidth(30)
-        self.button_rotate_z = QtWidgets.QPushButton("Z")
-        self.button_rotate_z.setFixedWidth(30)
+        self.rotate_label = QtWidgets.QLabel("Rotate:")
+        self.rotate_x_button = QtWidgets.QPushButton("X")
+        self.rotate_x_button.setFixedWidth(30)
+        self.rotate_y_button = QtWidgets.QPushButton("Y")
+        self.rotate_y_button.setFixedWidth(30)
+        self.rotate_z_button = QtWidgets.QPushButton("Z")
+        self.rotate_z_button.setFixedWidth(30)
 
+        # Create color buttons based on the color button dict
         self.color_button_list = []
         for n in range(0, 10):
             # First button in the list have unique settings
@@ -92,56 +79,55 @@ class TemplateToolWindow(QtWidgets.QDialog):
                 color_button.setStyleSheet("background-color: dimgray")
             else:
                 color_button = QtWidgets.QPushButton()
-                color = str(self.color_dict_list[n])
-                color_button.setStyleSheet("background-color: {}".format(color))
+                color_button.setStyleSheet("background-color: {}".format(str(self.color_dict_list[n])))
             self.color_button_list.append(color_button)
 
     def create_ui_layout(self):
-        horizontal_layout2 = QtWidgets.QHBoxLayout()
-        horizontal_layout2.setContentsMargins(0,0,0,20)
-        horizontal_layout2.addWidget(self.template_checkbox1)
-        horizontal_layout2.addWidget(self.template_checkbox2)
-        horizontal_layout2.addWidget(self.template_checkbox3)
+        checkbox_layout = QtWidgets.QHBoxLayout()
+        checkbox_layout.setContentsMargins(0,0,0,20)
+        checkbox_layout.addWidget(self.constraint_checkbox)
+        checkbox_layout.addWidget(self.lock_attr_checkbox)
+        checkbox_layout.addWidget(self.add_suffix_checkbox)
 
-        horizontal_layout = QtWidgets.QHBoxLayout()
-        horizontal_layout.addWidget(self.template_icon1_button)
-        horizontal_layout.addWidget(self.template_icon2_button)
-        horizontal_layout.addWidget(self.template_icon3_button)
-        horizontal_layout.addWidget(self.template_icon4_button)
+        create_layout = QtWidgets.QHBoxLayout()
+        create_layout.addWidget(self.circle_button)
+        create_layout.addWidget(self.sphere_button)
+        create_layout.addWidget(self.square_button)
+        create_layout.addWidget(self.cube_button)
 
         edit_layout = QtWidgets.QHBoxLayout()
-        edit_layout.addWidget(self.template_label2)
-        edit_layout.addWidget(self.button_rotate_x)
-        edit_layout.addWidget(self.button_rotate_y)
-        edit_layout.addWidget(self.button_rotate_z)
-        edit_layout.addWidget(self.template_label1)
+        edit_layout.addWidget(self.rotate_label)
+        edit_layout.addWidget(self.rotate_x_button)
+        edit_layout.addWidget(self.rotate_y_button)
+        edit_layout.addWidget(self.rotate_z_button)
+        edit_layout.addWidget(self.scale_label)
         edit_layout.addWidget(self.scale_up_button)
         edit_layout.addWidget(self.scale_down_button)
 
-        color_upper_row = QtWidgets.QHBoxLayout()
-        color_upper_row.setSpacing(0)
+        color_layout = QtWidgets.QHBoxLayout()
+        color_layout.setSpacing(0)
         for btn in self.color_button_list:
-            color_upper_row.addWidget(btn)
+            color_layout.addWidget(btn)
 
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
-        main_layout.addWidget(self.template_label)
-        main_layout.addLayout(horizontal_layout)
-        main_layout.addLayout(horizontal_layout2)
-        main_layout.addWidget(self.template_label_e)
+        main_layout.addWidget(self.create_label)
+        main_layout.addLayout(create_layout)
+        main_layout.addLayout(checkbox_layout)
+        main_layout.addWidget(self.edit_label)
         main_layout.addLayout(edit_layout)
-        main_layout.addLayout(color_upper_row)
+        main_layout.addLayout(color_layout)
         main_layout.addStretch()
  
     def create_ui_connections(self):
-        self.template_icon1_button.clicked.connect(partial(self.create_controller, "circle"))
-        self.template_icon2_button.clicked.connect(partial(self.create_controller, "sphere"))
-        self.template_icon3_button.clicked.connect(partial(self.create_controller, "square"))
-        self.template_icon4_button.clicked.connect(partial(self.create_controller, "cube"))
+        self.circle_button.clicked.connect(partial(self.create_controller, "circle"))
+        self.sphere_button.clicked.connect(partial(self.create_controller, "sphere"))
+        self.square_button.clicked.connect(partial(self.create_controller, "square"))
+        self.cube_button.clicked.connect(partial(self.create_controller, "cube"))
 
-        self.button_rotate_x.clicked.connect(partial(self.rotate_ctrl_shape, [45, 0, 0]))
-        self.button_rotate_y.clicked.connect(partial(self.rotate_ctrl_shape, [0, 45, 0]))
-        self.button_rotate_z.clicked.connect(partial(self.rotate_ctrl_shape, [0, 0, 45]))
+        self.rotate_x_button.clicked.connect(partial(self.rotate_ctrl_shape, [45, 0, 0]))
+        self.rotate_y_button.clicked.connect(partial(self.rotate_ctrl_shape, [0, 45, 0]))
+        self.rotate_z_button.clicked.connect(partial(self.rotate_ctrl_shape, [0, 0, 45]))
 
         self.scale_up_button.clicked.connect(partial(self.scale_ctrl_shape, 1.2))
         self.scale_down_button.clicked.connect(partial(self.scale_ctrl_shape, 0.8))
@@ -243,14 +229,14 @@ class TemplateToolWindow(QtWidgets.QDialog):
         return pm.curve(d=1, p=[(-1, 0, 1), (-1, 0, 1), (0, 0, 1), (1, 0, 1), (1, 0, 1), (1, 0, -1), (-1, 0, -1), (-1, 0, 1)], k=[0,1,2,3,4,5,6,7])
 
 def start():
-    global template_tool_ui
+    global ctrl_creator_ui
     try:
-        template_tool_ui.close()
-        template_tool_ui.deleteLater()
+        ctrl_creator_ui.close()
+        ctrl_creator_ui.deleteLater()
     except:
         pass
-    template_tool_ui = TemplateToolWindow()
-    template_tool_ui.show()
+    ctrl_creator_ui = CtrlCreatorWindow()
+    ctrl_creator_ui.show()
 
 if __name__ == "__main__":
     start()
