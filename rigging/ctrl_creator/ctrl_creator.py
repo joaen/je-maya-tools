@@ -144,7 +144,6 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
             spans = int(pm.getAttr(c+".spans"))
             vertices = "{shape}.cv[0:{count}]".format(shape=c, count=spans)
             ctrl_vertices.append(vertices)
-
         return ctrl_vertices
 
     def create_controller(self, input_shape):
@@ -200,7 +199,7 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         circles[2].setRotation([0, -90, 0])
         circles[3].setRotation([90, 0, 0])
         
-        # Combine
+        # Combine circles into a sphere
         shape_nodes = pm.listRelatives(circles, shapes=True)
         output_node = pm.group(empty=True)
         pm.makeIdentity(circles, apply=True, t=True, r=True, s=True)
