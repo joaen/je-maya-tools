@@ -38,6 +38,7 @@ def rotate_ctrl_shape(degrees):
         pm.select(sel, add=True)
 
 def get_sphere():
+    # Create circles
     circles = []
     for n in range(0, 5):
         circles.append(pm.circle(normal=(0,0,0), center=(0,0,0))[0])
