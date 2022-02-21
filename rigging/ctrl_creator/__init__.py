@@ -1,4 +1,4 @@
 # maya_ui_template
 def start():
-    import maya_ui_template
-    return maya_ui_template.start()
+    import ctrl_creator
+    return ctrl_creator.start()
