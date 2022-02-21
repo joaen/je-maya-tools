@@ -83,14 +83,8 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         # Create color buttons based on the color button dict
         self.color_button_list = []
         for n in range(0, 10):
-            # First button in the list have unique settings
-            if n == 0:
-                color_button = QtWidgets.QPushButton(QtGui.QIcon(":noAccess.png"), "")
-                color_button.setFixedHeight(25)
-                color_button.setStyleSheet("background-color: dimgray")
-            else:
-                color_button = QtWidgets.QPushButton()
-                color_button.setStyleSheet("background-color: {}".format(str(self.color_dict_list[n])))
+            color_button = QtWidgets.QPushButton()
+            color_button.setStyleSheet("background-color: {}".format(str(self.color_dict_list[n])))
             self.color_button_list.append(color_button)
 
     def create_ui_layout(self):
