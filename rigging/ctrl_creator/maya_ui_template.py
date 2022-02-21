@@ -145,8 +145,13 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.scale_down_button.clicked.connect(partial(self.scale_ctrl_shape, 0.8))
     
     def get_cvs(self, object):
-        spans = str(pm.getAttr(object+".spans"))
-        ctrl_vertices = "{shape}.cv[0:{count}]".format(shape=object, count=spans)
+        children = pm.listRelatives(object, children=True)
+        ctrl_vertices = []
+        for c in children:
+            spans = int(pm.getAttr(c+".spans"))
+            vertices = "{shape}.cv[0:{count}]".format(shape=c, count=spans)
+            ctrl_vertices.append(vertices)
+
         return ctrl_vertices
 
     def create_controller(self, selected_shape):
