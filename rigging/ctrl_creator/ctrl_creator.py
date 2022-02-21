@@ -1,5 +1,8 @@
 from functools import partial
 import sys
+from collections import OrderedDict 
+
+import pyside2uic
 import pymel.core as pm
 import maya.OpenMayaUI as omui
 from shiboken2 import wrapInstance
@@ -15,6 +18,22 @@ def maya_main_window():
         return wrapInstance(long(main_window), QtWidgets.QWidget) # type: ignore
 
 class TemplateToolWindow(QtWidgets.QDialog):
+
+    color_dict = OrderedDict([
+        ("gray", 0),
+        ("darkblue", 5),
+        ("blue", 6),
+        ("cyan", 18),
+        ("magenta", 9),
+        ("red", 13),
+        ("orange", 24),
+        ("yellow", 17),
+        ("lime", 14),
+        ("white", 16)
+        ])
+    
+    color_dict_list = list(color_dict)
+
     def __init__(self):
         super(TemplateToolWindow, self).__init__(maya_main_window())
         self.setWindowTitle("Ctrl Creator")
@@ -64,27 +83,18 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.button_rotate_z = QtWidgets.QPushButton("Z")
         self.button_rotate_z.setFixedWidth(30)
 
-        self.template_button1 = QtWidgets.QPushButton(QtGui.QIcon(":noAccess.png"), "")
-        self.template_button1.setFixedHeight(25)
-        self.template_button1.setStyleSheet("background-color: grey")
-        self.template_button2 = QtWidgets.QPushButton()
-        self.template_button2.setStyleSheet("background-color: blue")
-        self.template_button3 = QtWidgets.QPushButton()
-        self.template_button3.setStyleSheet("background-color: darkblue")
-        self.template_button4 = QtWidgets.QPushButton()
-        self.template_button4.setStyleSheet("background-color: purple")
-        self.template_button5 = QtWidgets.QPushButton()
-        self.template_button5.setStyleSheet("background-color: magenta")
-        self.template_button6 = QtWidgets.QPushButton()
-        self.template_button6.setStyleSheet("background-color: red")
-        self.template_button7 = QtWidgets.QPushButton()
-        self.template_button7.setStyleSheet("background-color: darkred")
-        self.template_button8 = QtWidgets.QPushButton()
-        self.template_button8.setStyleSheet("background-color: yellow")
-        self.template_button9 = QtWidgets.QPushButton()
-        self.template_button9.setStyleSheet("background-color: #00FF00")
-        self.template_button10 = QtWidgets.QPushButton()
-        self.template_button10.setStyleSheet("background-color: white")
+        self.color_button_list = []
+        for n in range(0, 10):
+            # First button in the list have unique settings
+            if n == 0:
+                color_button = QtWidgets.QPushButton(QtGui.QIcon(":noAccess.png"), "")
+                color_button.setFixedHeight(25)
+                color_button.setStyleSheet("background-color: dimgray")
+            else:
+                color_button = QtWidgets.QPushButton()
+                color = str(self.color_dict_list[n])
+                color_button.setStyleSheet("background-color: {}".format(color))
+            self.color_button_list.append(color_button)
 
     def create_ui_layout(self):
         horizontal_layout2 = QtWidgets.QHBoxLayout()
@@ -110,16 +120,8 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
         color_upper_row = QtWidgets.QHBoxLayout()
         color_upper_row.setSpacing(0)
-        color_upper_row.addWidget(self.template_button1)
-        color_upper_row.addWidget(self.template_button2)
-        color_upper_row.addWidget(self.template_button3)
-        color_upper_row.addWidget(self.template_button4)
-        color_upper_row.addWidget(self.template_button5)
-        color_upper_row.addWidget(self.template_button6)
-        color_upper_row.addWidget(self.template_button7)
-        color_upper_row.addWidget(self.template_button8)
-        color_upper_row.addWidget(self.template_button9)
-        color_upper_row.addWidget(self.template_button10)
+        for btn in self.color_button_list:
+            color_upper_row.addWidget(btn)
 
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
@@ -143,6 +145,11 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
         self.scale_up_button.clicked.connect(partial(self.scale_ctrl_shape, 1.2))
         self.scale_down_button.clicked.connect(partial(self.scale_ctrl_shape, 0.8))
+
+        for n in range(0, 10):
+            index = self.color_dict.get(self.color_dict_list[n])
+            self.color_button_list[n].clicked.connect(partial(self.set_ctrl_color, index))
+
     
     def get_cvs(self, object):
         children = pm.listRelatives(object, children=True)
@@ -154,21 +161,24 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
         return ctrl_vertices
 
-    def create_controller(self, selected_shape):
+    def create_controller(self, input_shape):
+        new_shapes_list = []
         for transform in pm.selected():
-            if selected_shape == "circle":
+            if input_shape == "circle":
                 shape = self.create_circle()
-            elif selected_shape == "sphere":
+            elif input_shape == "sphere":
                 shape = self.create_sphere()
-            elif selected_shape == "square":
+            elif input_shape == "square":
                 shape = self.create_square()
-            elif selected_shape == "cube":
+            elif input_shape == "cube":
                 shape = self.create_cube()
 
             pm.rename(shape, transform+"_CTRL")
             offset_grp = pm.group(shape)
             pm.rename(offset_grp, transform+"_CTRL_Grp")
             pm.matchTransform(offset_grp, transform)
+            new_shapes_list.append(shape)
+        pm.select(new_shapes_list, replace=True)
 
     def scale_ctrl_shape(self, size):
         stored_selection = pm.ls(selection=True)
@@ -212,6 +222,16 @@ class TemplateToolWindow(QtWidgets.QDialog):
         pm.delete(shape_nodes, constructionHistory=True)
         pm.delete(circles)
         return output_node
+
+    def set_ctrl_color(self, color_index):
+        selection = pm.ls(selection=True)
+        for obj in selection:
+            shape_nodes = pm.listRelatives(obj, shapes=True)
+
+            for shape in shape_nodes:
+                pm.setAttr("{0}.overrideEnabled".format(shape), True)
+                pm.setAttr("{0}.overrideColor".format(shape), color_index)
+        pm.select(deselect=True)
 
     def create_circle(self):
         return pm.circle(normal=(1, 0, 0), center=(0, 0, 0))[0]
