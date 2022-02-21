@@ -86,27 +86,18 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.template_button10 = QtWidgets.QPushButton()
         self.template_button10.setStyleSheet("background-color: white")
 
-        # self.template_border = QtWidgets.QFrame()
-        # self.template_border.setFrameShape(QtWidgets.QFrame.HLine)
-        # self.template_border.setFixedHeight(100)
-
-
     def create_ui_layout(self):
         horizontal_layout2 = QtWidgets.QHBoxLayout()
-        # horizontal_layout2.addWidget(self.template_border)
-        # horizontal_layout2.addWidget(self.template_label)
         horizontal_layout2.setContentsMargins(0,0,0,20)
         horizontal_layout2.addWidget(self.template_checkbox1)
         horizontal_layout2.addWidget(self.template_checkbox2)
         horizontal_layout2.addWidget(self.template_checkbox3)
 
         horizontal_layout = QtWidgets.QHBoxLayout()
-        # horizontal_layout.setContentsMargins(0, 0, 0, 40)
         horizontal_layout.addWidget(self.template_icon1_button)
         horizontal_layout.addWidget(self.template_icon2_button)
         horizontal_layout.addWidget(self.template_icon3_button)
         horizontal_layout.addWidget(self.template_icon4_button)
-        # horizontal_layout.addStretch(QtCore.Qt.Horizontal)
 
         edit_layout = QtWidgets.QHBoxLayout()
         edit_layout.addWidget(self.template_label2)
@@ -116,12 +107,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
         edit_layout.addWidget(self.template_label1)
         edit_layout.addWidget(self.scale_up_button)
         edit_layout.addWidget(self.scale_down_button)
-        # vertical_layout.addWidget(self.template_la
-        # ebel)
-        # vertical_layout.addWidget(self.template_checkbox)
-        # vertical_layout.addWidget(self.template_combobox)
-        # vertical_layout.addWidget(self.template_slider)
-        # vertical_layout.addStretch()
+
         color_upper_row = QtWidgets.QHBoxLayout()
         color_upper_row.setSpacing(0)
         color_upper_row.addWidget(self.template_button1)
@@ -144,7 +130,6 @@ class TemplateToolWindow(QtWidgets.QDialog):
         main_layout.addLayout(edit_layout)
         main_layout.addLayout(color_upper_row)
         main_layout.addStretch()
-        # main_layout.addLayout(vertical_layout)
  
     def create_ui_connections(self):
         self.template_icon1_button.clicked.connect(partial(self.create_controller, "circle"))
