@@ -52,17 +52,17 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.template_checkbox3 = QtWidgets.QCheckBox("_FK suffix")
 
         self.template_label1 = QtWidgets.QLabel("Scale:")
-        self.template_btn1 = QtWidgets.QPushButton("+")
-        self.template_btn1.setFixedWidth(30)
-        self.template_btn2 = QtWidgets.QPushButton("-")
-        self.template_btn2.setFixedWidth(30)
+        self.scale_up_button = QtWidgets.QPushButton("+")
+        self.scale_up_button.setFixedWidth(30)
+        self.scale_down_button = QtWidgets.QPushButton("-")
+        self.scale_down_button.setFixedWidth(30)
         self.template_label2 = QtWidgets.QLabel("Rotate:")
-        self.template_btn3 = QtWidgets.QPushButton("X")
-        self.template_btn3.setFixedWidth(30)
-        self.template_btn4 = QtWidgets.QPushButton("Y")
-        self.template_btn4.setFixedWidth(30)
-        self.template_btn5 = QtWidgets.QPushButton("Z")
-        self.template_btn5.setFixedWidth(30)
+        self.button_rotate_x = QtWidgets.QPushButton("X")
+        self.button_rotate_x.setFixedWidth(30)
+        self.button_rotate_y = QtWidgets.QPushButton("Y")
+        self.button_rotate_y.setFixedWidth(30)
+        self.button_rotate_z = QtWidgets.QPushButton("Z")
+        self.button_rotate_z.setFixedWidth(30)
 
         self.template_button1 = QtWidgets.QPushButton(QtGui.QIcon(":noAccess.png"), "")
         self.template_button1.setFixedHeight(25)
@@ -110,12 +110,12 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
         edit_layout = QtWidgets.QHBoxLayout()
         edit_layout.addWidget(self.template_label2)
-        edit_layout.addWidget(self.template_btn3)
-        edit_layout.addWidget(self.template_btn4)
-        edit_layout.addWidget(self.template_btn5)
+        edit_layout.addWidget(self.button_rotate_x)
+        edit_layout.addWidget(self.button_rotate_y)
+        edit_layout.addWidget(self.button_rotate_z)
         edit_layout.addWidget(self.template_label1)
-        edit_layout.addWidget(self.template_btn1)
-        edit_layout.addWidget(self.template_btn2)
+        edit_layout.addWidget(self.scale_up_button)
+        edit_layout.addWidget(self.scale_down_button)
         # vertical_layout.addWidget(self.template_la
         # ebel)
         # vertical_layout.addWidget(self.template_checkbox)
@@ -152,17 +152,19 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.template_icon3_button.clicked.connect(partial(self.create_controller, "square"))
         self.template_icon4_button.clicked.connect(partial(self.create_controller, "cube"))
 
-    def template_command(self):
-        print("WOW")
-        # color = QtWidgets.QColorDialog.getColor()
+        self.button_rotate_x.clicked.connect(partial(self.rotate_ctrl_shape, [45, 0, 0]))
+        self.button_rotate_y.clicked.connect(partial(self.rotate_ctrl_shape, [0, 45, 0]))
+        self.button_rotate_z.clicked.connect(partial(self.rotate_ctrl_shape, [0, 0, 45]))
+
+        self.scale_up_button.clicked.connect(partial(self.scale_ctrl_shape, 1.2))
+        self.scale_down_button.clicked.connect(partial(self.scale_ctrl_shape, 0.8))
     
     def get_cvs(self, object):
-        spans = str(pm.getAttr(object+".spans") - 1)
+        spans = str(pm.getAttr(object+".spans"))
         ctrl_vertices = "{shape}.cv[0:{count}]".format(shape=object, count=spans)
         return ctrl_vertices
 
     def create_controller(self, selected_shape):
-        print("WOW")
         for transform in pm.selected():
             if selected_shape == "circle":
                 shape = self.create_circle()
@@ -173,9 +175,9 @@ class TemplateToolWindow(QtWidgets.QDialog):
             elif selected_shape == "cube":
                 shape = self.create_cube()
 
-            # pm.rename(shape, transform+"_CTRL")
+            pm.rename(shape, transform+"_CTRL")
             offset_grp = pm.group(shape)
-            # pm.rename(offset_grp, transform+"_CTRL_Grp")
+            pm.rename(offset_grp, transform+"_CTRL_Grp")
             pm.matchTransform(offset_grp, transform)
 
     def scale_ctrl_shape(self, size):
@@ -192,7 +194,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
     def rotate_ctrl_shape(self, degrees):
         stored_selection = pm.ls(selection=True)
 
-        for ctrl in pm.selected(self):
+        for ctrl in pm.selected():
             ctrl_pivot = pm.xform(ctrl, query=True, translation=True, worldSpace=True)
             pm.select(self.get_cvs(ctrl), replace=True)
             pm.rotate(degrees, relative=True, pivot=(ctrl_pivot))
@@ -222,7 +224,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
         return output_node
 
     def create_circle(self):
-        return pm.circle(normal=(1, 0, 0), center=(0, 0, 0))
+        return pm.circle(normal=(1, 0, 0), center=(0, 0, 0))[0]
 
     def create_cube(self):
         return pm.curve(name="shape123", d=1, p=[(-1, -1, 1), (-1, 1, 1), (1, 1, 1), (1, -1, 1), (-1, -1, 1), (-1, -1, -1), (-1, 1, -1), (-1, 1, 1), (-1, 1, -1), (1, 1, -1), (1, -1, -1), (-1, -1, -1), (1, -1, -1), (1, -1, 1), (1, 1, 1), (1, 1, -1)], k=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
