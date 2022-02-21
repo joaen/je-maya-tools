@@ -1,3 +1,4 @@
+from functools import partial
 import sys
 import pymel.core as pm
 import maya.OpenMayaUI as omui
@@ -146,9 +147,10 @@ class TemplateToolWindow(QtWidgets.QDialog):
         # main_layout.addLayout(vertical_layout)
  
     def create_ui_connections(self):
-        # self.template_button.clicked.connect(self.template_command)
-        self.template_icon1_button.clicked.connect(self.template_command)
-        # self.template_slider.valueChanged.connect(self.template_command)
+        self.template_icon1_button.clicked.connect(partial(self.create_controller, "circle"))
+        self.template_icon2_button.clicked.connect(partial(self.create_controller, "sphere"))
+        self.template_icon3_button.clicked.connect(partial(self.create_controller, "square"))
+        self.template_icon4_button.clicked.connect(partial(self.create_controller, "cube"))
 
     def template_command(self):
         print("WOW")
@@ -159,12 +161,21 @@ class TemplateToolWindow(QtWidgets.QDialog):
         ctrl_vertices = "{shape}.cv[0:{count}]".format(shape=object, count=spans)
         return ctrl_vertices
 
-    def create_controller(self):
+    def create_controller(self, selected_shape):
+        print("WOW")
         for transform in pm.selected():
-            shape = self.create_sphere()
-            pm.rename(shape, transform+"_CTRL")
+            if selected_shape == "circle":
+                shape = self.create_circle()
+            elif selected_shape == "sphere":
+                shape = self.create_sphere()
+            elif selected_shape == "square":
+                shape = self.create_square()
+            elif selected_shape == "cube":
+                shape = self.create_cube()
+
+            # pm.rename(shape, transform+"_CTRL")
             offset_grp = pm.group(shape)
-            pm.rename(offset_grp, transform+"_CTRL_Grp")
+            # pm.rename(offset_grp, transform+"_CTRL_Grp")
             pm.matchTransform(offset_grp, transform)
 
     def scale_ctrl_shape(self, size):
