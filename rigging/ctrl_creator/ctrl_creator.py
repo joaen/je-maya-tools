@@ -36,6 +36,10 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
     
     color_dict_list = list(color_dict)
 
+    # point_constraint_checked = False
+    # orient_constraint = False
+    # hide_lock_attr = False
+
     def __init__(self):
         super(CtrlCreatorWindow, self).__init__(maya_main_window())
         self.setWindowTitle("Ctrl Creator")
@@ -63,9 +67,9 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         self.square_button = QtWidgets.QPushButton(QtGui.QIcon(":square.png"), "Square")
         self.cube_button = QtWidgets.QPushButton(QtGui.QIcon(":cube.png"), "Cube")
         
-        self.constraint_checkbox = QtWidgets.QCheckBox("ParentConstraint")
+        self.point_constraint_checkbox = QtWidgets.QCheckBox("Point Constraint")
+        self.orient_constraint_checkbox = QtWidgets.QCheckBox("Orient Constraint")
         self.lock_attr_checkbox = QtWidgets.QCheckBox("Hide + lock unused attrs")
-        self.add_suffix_checkbox = QtWidgets.QCheckBox("_FK suffix")
 
         self.scale_label = QtWidgets.QLabel("Scale:")
         self.scale_up_button = QtWidgets.QPushButton("+")
@@ -90,9 +94,9 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
     def create_ui_layout(self):
         checkbox_layout = QtWidgets.QHBoxLayout()
         checkbox_layout.setContentsMargins(0,0,0,20)
-        checkbox_layout.addWidget(self.constraint_checkbox)
+        checkbox_layout.addWidget(self.point_constraint_checkbox)
+        checkbox_layout.addWidget(self.orient_constraint_checkbox)
         checkbox_layout.addWidget(self.lock_attr_checkbox)
-        checkbox_layout.addWidget(self.add_suffix_checkbox)
 
         create_layout = QtWidgets.QHBoxLayout()
         create_layout.addWidget(self.circle_button)
@@ -163,12 +167,34 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
             elif input_shape == "cube":
                 shape = self.create_cube()
 
-            pm.rename(shape, transform+"_CTRL")
+            pm.rename(shape, transform+"_ctrl")
             offset_grp = pm.group(shape)
-            pm.rename(offset_grp, transform+"_CTRL_Grp")
+            pm.rename(offset_grp, transform+"_ctrl_grp")
             pm.matchTransform(offset_grp, transform)
             new_shapes_list.append(shape)
+            if self.point_constraint_checkbox.isChecked() == True:
+                pm.pointConstraint(shape, transform)
+            if self.orient_constraint_checkbox.isChecked() == True:
+                pm.orientConstraint(shape, transform)
+            else:
+                pass
+            if self.lock_attr_checkbox.isChecked() == True:
+                self.hide_lock_attr(shape)
+                print("OOO")
+
         pm.select(new_shapes_list, replace=True)
+    
+    def hide_lock_attr(self, object):
+        for attr in ["scaleX", "scaleY", "scaleZ", "visibility"]:
+            pm.setAttr("{}.{}".format(object, attr), lock=True, keyable=False, channelBox=False)
+
+        if self.orient_constraint_checkbox.isChecked() == False:
+            for attr in ["rotateX", "rotateY", "rotateZ"]:
+                pm.setAttr("{}.{}".format(object, attr), lock=True, keyable=False, channelBox=False)
+
+        if self.point_constraint_checkbox.isChecked() == False:
+            for attr in ["translateX", "translateY", "translateZ"]:
+                pm.setAttr("{}.{}".format(object, attr), lock=True, keyable=False, channelBox=False)
 
     def scale_ctrl_shape(self, size):
         stored_selection = pm.selected()
