@@ -30,19 +30,17 @@ def maya_main_window():
 
 class CtrlCreatorWindow(QtWidgets.QDialog):
 
-    color_dict = OrderedDict([
+    WINDOW_TITLE = "Ctrl Creator"
+
+    COLOR_DICT = OrderedDict([
         ("black", 0), ("darkblue", 5), ("blue", 6), ("cyan", 18), ("magenta", 9),
         ("red", 13), ("orange", 24), ("yellow", 17), ("lime", 14), ("white", 16)])
-    
-    color_dict_list = list(color_dict)
 
-    # point_constraint_checked = False
-    # orient_constraint = False
-    # hide_lock_attr = False
+    COLOR_DICT_LIST = list(COLOR_DICT)
 
     def __init__(self):
         super(CtrlCreatorWindow, self).__init__(maya_main_window())
-        self.setWindowTitle("Ctrl Creator")
+        self.setWindowTitle(self.WINDOW_TITLE)
         
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.resize(380, 250)
@@ -88,7 +86,7 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         self.color_button_list = []
         for n in range(0, 10):
             color_button = QtWidgets.QPushButton()
-            color_button.setStyleSheet("background-color: {}".format(str(self.color_dict_list[n])))
+            color_button.setStyleSheet("background-color: {}".format(str(self.COLOR_DICT_LIST[n])))
             self.color_button_list.append(color_button)
 
     def create_ui_layout(self):
@@ -142,7 +140,7 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         self.scale_down_button.clicked.connect(partial(self.scale_ctrl_shape, 0.8))
 
         for n in range(0, 10):
-            index = self.color_dict.get(self.color_dict_list[n])
+            index = self.COLOR_DICT.get(self.COLOR_DICT_LIST[n])
             self.color_button_list[n].clicked.connect(partial(self.set_ctrl_color, index))
 
     
@@ -180,7 +178,6 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
                 pass
             if self.lock_attr_checkbox.isChecked() == True:
                 self.hide_lock_attr(shape)
-                print("OOO")
 
         pm.select(new_shapes_list, replace=True)
     
