@@ -6,9 +6,9 @@ def pole_vector_position(start_joint, mid_joint, end_joint):
     mid_node = pm.PyNode(mid_joint)
     end_node = pm.PyNode(end_joint)
 
-    start_vec = start_node.getTranslation(World=True)
-    mid_vec = mid_node.getTranslation(World=True)
-    end_vec = end_node.getTranslation(World=True)
+    start_vec = start_node.getTranslation(space="world")
+    mid_vec = mid_node.getTranslation(space="world")
+    end_vec = end_node.getTranslation(space="world")
 
     start_end_dir = (end_vec - start_vec)
 
@@ -22,7 +22,7 @@ def pole_vector_position(start_joint, mid_joint, end_joint):
     return pole_vector
 
 
-pole = pole_vector_position("locator1", "locator2", "locator3")
+pole = pole_vector_position("joint1", "joint2", "joint3")
 # print(pole_vector_position(pm.selected[0], pm.selected[1], pm.selected[2]))
 pm.spaceLocator().setTranslation(pole, space="world")
 # print(pole_vector_pos)
