@@ -8,7 +8,7 @@ Add calculate_pole_vector.py to your Maya scripts folder (Username\Documents\may
 
 If you want to caluculate the pole position and create a locator at that position you can select three joints in Maya (in top-down order) and run this command:
 from calculate_pole_vector import create_loc
-create_loc()
+create_loc(offset="2")
 
 If you don't want to create an locator and just want the pole position as a dt vector you can run this command:
 from calculate_pole_vector import get_position
@@ -39,11 +39,10 @@ def get_position(start_joint, mid_joint, end_joint, offset):
     
     return pole_vec
 
-def create_loc():
+def create_loc(offset=2):
     joint1 = pm.selected()[0]
     joint2 = pm.selected()[1]
     joint3 = pm.selected()[2]
-    position_offset = 2
-    pole_vector_pos = get_position(joint1, joint2, joint3, position_offset)
+    pole_vector_pos = get_position(joint1, joint2, joint3, offset)
     pm.spaceLocator().setTranslation(pole_vector_pos, space="world")
 
