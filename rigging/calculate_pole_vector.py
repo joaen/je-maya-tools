@@ -29,7 +29,7 @@ def get_position(start_joint, mid_joint, end_joint, offset):
     # Calculate the mid point between joint1 and joint3
     mid_point_pos = joint1_pos + (joint3_pos - joint1_pos).normal() * ((joint3_pos - joint1_pos).length() * 0.5)
 
-    # get the pole vector position using the mid point and scaling the using the offset float
+    # Get the pole vector position by aiming from the mid point towards joint2 position. Scale the vector using the offset float.
     pole_vec = mid_point_pos + (joint2_pos - mid_point_pos).normal() * ((joint2_pos - mid_point_pos).length() * offset)
     print("Pole position: "+str(pole_vec))
     
