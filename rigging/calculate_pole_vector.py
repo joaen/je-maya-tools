@@ -12,8 +12,8 @@ from calculate_pole_vector import create_loc
 create_loc(offset="2")
 
 '''
-
 import pymel.core as pm
+
 
 def get_position(start_joint, mid_joint, end_joint, offset):
     # Create pynodes
