@@ -9,10 +9,10 @@ To start the tool within Maya, run these this lines of code from the Maya script
 
 import ctrl_creator
 ctrl_creator.start()
- 
+
 '''
 import sys
-import pymel.core as pm
+import maya.cmds as cmds
 import maya.OpenMayaUI as omui
 from shiboken2 import wrapInstance
 from PySide2 import QtCore, QtGui, QtWidgets
@@ -48,7 +48,7 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         self.create_ui_layout()
         self.create_ui_connections()
 
-        if pm.about(macOS=True):
+        if cmds.about(macOS=True):
             self.setWindowFlags(QtCore.Qt.Tool)
  
     def create_ui_widgets(self):
@@ -145,17 +145,17 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
 
     
     def get_cvs(self, object):
-        children = pm.listRelatives(object, children=True)
+        children = cmds.listRelatives(object, children=True)
         ctrl_vertices = []
         for c in children:
-            spans = int(pm.getAttr(c+".spans"))
+            spans = int(cmds.getAttr(c+".spans"))
             vertices = "{shape}.cv[0:{count}]".format(shape=c, count=spans)
             ctrl_vertices.append(vertices)
         return ctrl_vertices
 
     def create_controller(self, input_shape):
         new_shapes_list = []
-        for transform in pm.selected():
+        for transform in cmds.ls(selection=True):
             if input_shape == "circle":
                 shape = self.create_circle()
             elif input_shape == "sphere":
@@ -165,62 +165,62 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
             elif input_shape == "cube":
                 shape = self.create_cube()
 
-            pm.rename(shape, transform+"_ctrl")
-            offset_grp = pm.group(shape)
-            pm.rename(offset_grp, transform+"_ctrl_grp")
-            pm.matchTransform(offset_grp, transform)
+            cmds.rename(shape, transform+"_ctrl")
+            offset_grp = cmds.group(shape)
+            cmds.rename(offset_grp, transform+"_ctrl_grp")
+            cmds.matchTransform(offset_grp, transform)
             new_shapes_list.append(shape)
             if self.point_constraint_checkbox.isChecked() == True:
-                pm.pointConstraint(shape, transform)
+                cmds.pointConstraint(shape, transform)
             if self.orient_constraint_checkbox.isChecked() == True:
-                pm.orientConstraint(shape, transform)
+                cmds.orientConstraint(shape, transform)
             else:
                 pass
             if self.lock_attr_checkbox.isChecked() == True:
                 self.hide_lock_attr(shape)
 
-        pm.select(new_shapes_list, replace=True)
+        cmds.select(new_shapes_list, replace=True)
     
     def hide_lock_attr(self, object):
         for attr in ["scaleX", "scaleY", "scaleZ", "visibility"]:
-            pm.setAttr("{}.{}".format(object, attr), lock=True, keyable=False, channelBox=False)
+            cmds.setAttr("{}.{}".format(object, attr), lock=True, keyable=False, channelBox=False)
 
         if self.orient_constraint_checkbox.isChecked() == False:
             for attr in ["rotateX", "rotateY", "rotateZ"]:
-                pm.setAttr("{}.{}".format(object, attr), lock=True, keyable=False, channelBox=False)
+                cmds.setAttr("{}.{}".format(object, attr), lock=True, keyable=False, channelBox=False)
 
         if self.point_constraint_checkbox.isChecked() == False:
             for attr in ["translateX", "translateY", "translateZ"]:
-                pm.setAttr("{}.{}".format(object, attr), lock=True, keyable=False, channelBox=False)
+                cmds.setAttr("{}.{}".format(object, attr), lock=True, keyable=False, channelBox=False)
 
     def scale_ctrl_shape(self, size):
-        stored_selection = pm.selected()
+        stored_selection = cmds.ls(selection=True)
 
-        for ctrl in pm.selected():
-            pm.select(self.get_cvs(ctrl), replace=True)
-            pm.scale(size, size, size)
+        for ctrl in cmds.ls(selection=True):
+            cmds.select(self.get_cvs(ctrl), replace=True)
+            cmds.scale(size, size, size)
         
-        pm.select(clear=True)
+        cmds.select(clear=True)
         for sel in stored_selection:
-            pm.select(sel, add=True)
+            cmds.select(sel, add=True)
 
     def rotate_ctrl_shape(self, degrees):
-        stored_selection = pm.selected()
+        stored_selection = cmds.ls(selection=True)
 
-        for ctrl in pm.selected():
-            ctrl_pivot = pm.xform(ctrl, query=True, translation=True, worldSpace=True)
-            pm.select(self.get_cvs(ctrl), replace=True)
-            pm.rotate(degrees, relative=True, pivot=(ctrl_pivot))
+        for ctrl in cmds.ls(selection=True):
+            ctrl_pivot = cmds.xform(ctrl, query=True, translation=True, worldSpace=True)
+            cmds.select(self.get_cvs(ctrl), replace=True)
+            cmds.rotate(degrees, relative=True, pivot=(ctrl_pivot))
 
-        pm.select(clear=True)
+        cmds.select(clear=True)
         for sel in stored_selection:
-            pm.select(sel, add=True)
+            cmds.select(sel, add=True)
 
     def create_sphere(self):
         # Create circles
         circles = []
         for n in range(0, 5):
-            circles.append(pm.circle(normal=(0,0,0), center=(0,0,0))[0])
+            circles.append(cmds.circle(normal=(0,0,0), center=(0,0,0))[0])
 
         circles[0].setRotation([0, 45, 0])
         circles[1].setRotation([0, -45, 0])
@@ -228,32 +228,32 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         circles[3].setRotation([90, 0, 0])
         
         # Combine circles into a sphere
-        shape_nodes = pm.listRelatives(circles, shapes=True)
-        output_node = pm.group(empty=True)
-        pm.makeIdentity(circles, apply=True, t=True, r=True, s=True)
-        pm.parent(shape_nodes, output_node, shape=True, relative=True)
-        pm.delete(shape_nodes, constructionHistory=True)
-        pm.delete(circles)
+        shape_nodes = cmds.listRelatives(circles, shapes=True)
+        output_node = cmds.group(empty=True)
+        cmds.makeIdentity(circles, apply=True, t=True, r=True, s=True)
+        cmds.parent(shape_nodes, output_node, shape=True, relative=True)
+        cmds.delete(shape_nodes, constructionHistory=True)
+        cmds.delete(circles)
         return output_node
 
     def set_ctrl_color(self, color_index):
-        selection = pm.selected()
+        selection = cmds.ls(selection=True)
         for obj in selection:
-            shape_nodes = pm.listRelatives(obj, shapes=True)
+            shape_nodes = cmds.listRelatives(obj, shapes=True)
 
             for shape in shape_nodes:
-                pm.setAttr("{0}.overrideEnabled".format(shape), True)
-                pm.setAttr("{0}.overrideColor".format(shape), color_index)
-        pm.select(deselect=True)
+                cmds.setAttr("{0}.overrideEnabled".format(shape), True)
+                cmds.setAttr("{0}.overrideColor".format(shape), color_index)
+        cmds.select(deselect=True)
 
     def create_circle(self):
-        return pm.circle(normal=(1, 0, 0), center=(0, 0, 0))[0]
+        return cmds.circle(normal=(1, 0, 0), center=(0, 0, 0))[0]
 
     def create_cube(self):
-        return pm.curve(name="shape123", d=1, p=[(-1, -1, 1), (-1, 1, 1), (1, 1, 1), (1, -1, 1), (-1, -1, 1), (-1, -1, -1), (-1, 1, -1), (-1, 1, 1), (-1, 1, -1), (1, 1, -1), (1, -1, -1), (-1, -1, -1), (1, -1, -1), (1, -1, 1), (1, 1, 1), (1, 1, -1)], k=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
+        return cmds.curve(name="shape123", d=1, p=[(-1, -1, 1), (-1, 1, 1), (1, 1, 1), (1, -1, 1), (-1, -1, 1), (-1, -1, -1), (-1, 1, -1), (-1, 1, 1), (-1, 1, -1), (1, 1, -1), (1, -1, -1), (-1, -1, -1), (1, -1, -1), (1, -1, 1), (1, 1, 1), (1, 1, -1)], k=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15])
 
     def create_square(self):
-        return pm.curve(d=1, p=[(-1, 0, 1), (-1, 0, 1), (0, 0, 1), (1, 0, 1), (1, 0, 1), (1, 0, -1), (-1, 0, -1), (-1, 0, 1)], k=[0,1,2,3,4,5,6,7])
+        return cmds.curve(d=1, p=[(-1, 0, 1), (-1, 0, 1), (0, 0, 1), (1, 0, 1), (1, 0, 1), (1, 0, -1), (-1, 0, -1), (-1, 0, 1)], k=[0,1,2,3,4,5,6,7])
 
 def start():
     global ctrl_creator_ui
