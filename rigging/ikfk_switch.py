@@ -5,6 +5,7 @@ import maya.OpenMayaUI as omui
 from shiboken2 import wrapInstance
 from PySide2 import QtCore, QtGui, QtWidgets
 import json
+import maya.api.OpenMaya as om
 
 
 def maya_main_window():
@@ -20,6 +21,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
         super(TemplateToolWindow, self).__init__(maya_main_window())
         self.setWindowTitle("IK/FK Switch")
         
+        # self.output_file_path = cmds.internalVar(userPrefDir=True)+"{}_settings.json".format(limb_name)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.resize(360, 120)
         self.create_ui_widgets()
@@ -121,6 +123,8 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.settings2_button.clicked.connect(partial(self.open_settings_window, "LeftArm"))
         self.settings3_button.clicked.connect(partial(self.open_settings_window, "RightLeg"))
         self.settings4_button.clicked.connect(partial(self.open_settings_window, "LeftLeg"))
+
+        self.template_button1.clicked.connect(partial(self.switch, "RightArm"))
         self.close_button.clicked.connect(self.close_ikfk_window)
 
     def close_ikfk_window(self):
@@ -135,6 +139,66 @@ class TemplateToolWindow(QtWidgets.QDialog):
             pass
         self.settings_window = SettingsWindow(limb_name)
         self.settings_window.show()
+    
+    def switch(self, limb_name):
+        self.output_file_path = cmds.internalVar(userPrefDir=True)+"{}_settings.json".format(limb_name)
+        settings_dict = json.load(open(self.output_file_path))
+        # Attritbute
+        ikfk_attr_name = settings_dict.get("ikfk_attr_name")
+        print("Loaded settings from: "+self.output_file_path)
+        # print(ikfk_attr_name)
+
+        ikfk_attr_value = cmds.getAttr(ikfk_attr_name)
+
+        # # FK
+
+        fk_ctrl_start = settings_dict.get("fk_ctrl_start")
+        fk_ctrl_mid = settings_dict.get("fk_ctrl_mid")
+        fk_ctrl_end = settings_dict.get("fk_ctrl_end")
+        
+        ik_joint_start = settings_dict.get("ik_joint_start")
+        ik_joint_mid = settings_dict.get("ik_joint_mid")
+        ik_joint_end = settings_dict.get("ik_joint_end")
+
+        # IK 
+        ik_ctrl = settings_dict.get("ik_ctrl")
+        ik_pv_ctrl = settings_dict.get("ik_pv_ctrl")
+
+        fk_joint_start = settings_dict.get("fk_joint_start")
+        fk_joint_mid = settings_dict.get("fk_joint_mid")
+        fk_joint_end = settings_dict.get("fk_joint_end")
+
+        if ikfk_attr_value == 1:
+            # Set attribute
+            cmds.setAttr(ikfk_attr_name, 0)
+
+            # IK controller
+            pos = om.MVector(cmds.xform(fk_joint_end, query=True, translation=True, worldSpace=True))
+            mat = om.MMatrix(cmds.xform(fk_joint_end, query=True, matrix=True, worldSpace=True))
+            
+            side_vector = om.MVector(mat[0], mat[1], mat[2])
+            up_vector = om.MVector(mat[4], mat[5], mat[6])
+            fwd_vector = om.MVector(mat[8], mat[9], mat[10])
+
+            x = [side_vector.x, side_vector.y, side_vector.z, 0]
+            y = [up_vector.x, up_vector.y, up_vector.z, 0]
+            z = [fwd_vector.x, fwd_vector.y, fwd_vector.z, 0]
+            o = [pos.x, pos.y, pos.z, 1]
+
+            matrix_list = [x, y, z, o]
+            joint_matrix = om.MMatrix(matrix_list)
+            cmds.xform(ik_ctrl, matrix=joint_matrix, worldSpace=True)
+
+            # Pole vector
+            cmds.matchTransform(ik_pv_ctrl, fk_joint_mid, position=True)
+
+        elif ikfk_attr_value == 0:
+            # Set attribute
+            cmds.setAttr(ikfk_attr_name, 1)
+
+            cmds.matchTransform(fk_ctrl_start, ik_joint_start, rotation=True)
+            cmds.matchTransform(fk_ctrl_mid, ik_joint_mid, rotation=True)
+            cmds.matchTransform(fk_ctrl_end, ik_joint_end, rotation=True)
 
 
 class SettingsWindow(QtWidgets.QDialog):
@@ -211,7 +275,6 @@ class SettingsWindow(QtWidgets.QDialog):
         main_layout.setContentsMargins(10, 20, 10, 10)
 
         for key in self.textfield_widget_dict:
-
             label = QtWidgets.QLabel(str(key))
             label_layout = QtWidgets.QHBoxLayout()
             label_layout.addWidget(label)
