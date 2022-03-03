@@ -239,7 +239,7 @@ class SettingsWindow(QtWidgets.QDialog):
 
     def __init__(self, limb_name):
         super(SettingsWindow, self).__init__(maya_main_window())
-        self.output_file_path = cmds.internalVar(userPrefDir=True)+"{}_settings.json".format(limb_name)
+        self.output_file_path = cmds.internalVar(userPrefDir=True)+"ikfk_settings_{}.json".format(limb_name)
         self.setWindowTitle("Settings - "+limb_name)
         self.setWindowIcon(QtGui.QIcon(":advancedSettings.png"))
         
