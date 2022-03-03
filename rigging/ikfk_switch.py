@@ -1,3 +1,4 @@
+from functools import partial
 import sys
 import maya.cmds as cmds
 import maya.OpenMayaUI as omui
@@ -20,7 +21,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.setWindowTitle("IK/FK Switch")
         
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
-        self.resize(320, 120)
+        self.resize(360, 120)
         self.create_ui_widgets()
         self.create_ui_layout()
         self.create_ui_connections()
@@ -55,10 +56,25 @@ class TemplateToolWindow(QtWidgets.QDialog):
             "QPushButton:hover { background-color: #5D5D5D; }"
             "QPushButton:pressed {background-color: black; }")
         
-        self.template_icon_button = QtWidgets.QPushButton()
-        self.template_icon_button.setIcon(QtGui.QIcon(":advancedSettings.png"))
-        self.template_icon_button.setFixedSize(24, 24)
-        self.template_icon_button.setStyleSheet(icon_button_css)
+        self.settings1_button = QtWidgets.QPushButton()
+        self.settings1_button.setIcon(QtGui.QIcon(":advancedSettings.png"))
+        self.settings1_button.setFixedSize(24, 24)
+        self.settings1_button.setStyleSheet(icon_button_css)
+
+        self.settings2_button = QtWidgets.QPushButton()
+        self.settings2_button.setIcon(QtGui.QIcon(":advancedSettings.png"))
+        self.settings2_button.setFixedSize(24, 24)
+        self.settings2_button.setStyleSheet(icon_button_css)
+
+        self.settings3_button = QtWidgets.QPushButton()
+        self.settings3_button.setIcon(QtGui.QIcon(":advancedSettings.png"))
+        self.settings3_button.setFixedSize(24, 24)
+        self.settings3_button.setStyleSheet(icon_button_css)
+
+        self.settings4_button = QtWidgets.QPushButton()
+        self.settings4_button.setIcon(QtGui.QIcon(":advancedSettings.png"))
+        self.settings4_button.setFixedSize(24, 24)
+        self.settings4_button.setStyleSheet(icon_button_css)
 
         self.help_icon_button = QtWidgets.QPushButton()
         self.help_icon_button.setIcon(QtGui.QIcon(":help.png"))
@@ -70,18 +86,25 @@ class TemplateToolWindow(QtWidgets.QDialog):
     def create_ui_layout(self):
 
         horizontal_layout1 = QtWidgets.QHBoxLayout()
+        # horizontal_layout1.setContentsMargins(30, 30, 30, 30)
+        horizontal_layout1.addWidget(self.settings1_button)
         horizontal_layout1.addWidget(self.template_button1)
+        horizontal_layout1.addSpacing(24)
+        horizontal_layout1.addWidget(self.settings2_button)
         horizontal_layout1.addWidget(self.template_button2)
 
         horizontal_layout2 = QtWidgets.QHBoxLayout()
+        horizontal_layout2.addWidget(self.settings3_button)
         horizontal_layout2.addWidget(self.template_button3)
+        horizontal_layout2.addSpacing(24)
+        horizontal_layout2.addWidget(self.settings4_button)
         horizontal_layout2.addWidget(self.template_button4)
 
 
         horizontal_layout = QtWidgets.QHBoxLayout()
-        horizontal_layout.addWidget(self.template_icon_button)
-        horizontal_layout.addWidget(self.help_icon_button)
+        # horizontal_layout.addWidget(self.settings1_button)
         horizontal_layout.addStretch()
+        horizontal_layout.addWidget(self.help_icon_button)
         horizontal_layout.addWidget(self.close_button)
 
         main_layout = QtWidgets.QVBoxLayout(self)
@@ -90,24 +113,27 @@ class TemplateToolWindow(QtWidgets.QDialog):
         main_layout.addLayout(horizontal_layout1)
         main_layout.addLayout(horizontal_layout2)
         main_layout.addSpacing(30)
-        main_layout.addLayout(horizontal_layout)
         main_layout.addStretch()
+        main_layout.addLayout(horizontal_layout)
  
     def create_ui_connections(self):
-        self.template_icon_button.clicked.connect(self.open_settings_window)
+        self.settings1_button.clicked.connect(partial(self.open_settings_window, "RightArm"))
+        self.settings2_button.clicked.connect(partial(self.open_settings_window, "LeftArm"))
+        self.settings3_button.clicked.connect(partial(self.open_settings_window, "RightLeg"))
+        self.settings4_button.clicked.connect(partial(self.open_settings_window, "LeftLeg"))
         self.close_button.clicked.connect(self.close_ikfk_window)
 
     def close_ikfk_window(self):
         self.close()
         self.deleteLater()
 
-    def open_settings_window(self):
+    def open_settings_window(self, limb_name):
         try:
             self.settings_window.close()
             self.settings_window.deleteLater()
         except:
             pass
-        self.settings_window = SettingsWindow()
+        self.settings_window = SettingsWindow(limb_name)
         self.settings_window.show()
 
 
@@ -143,11 +169,11 @@ class SettingsWindow(QtWidgets.QDialog):
         "fk_target_end" : ""
     }
 
-    output_path = cmds.internalVar(userPrefDir=True)+"ikfk_switch_settings.json"
 
-    def __init__(self):
+    def __init__(self, limb_name):
         super(SettingsWindow, self).__init__(maya_main_window())
-        self.setWindowTitle("Settings")
+        self.output_file_path = cmds.internalVar(userPrefDir=True)+"{}_settings.json".format(limb_name)
+        self.setWindowTitle("Settings - "+limb_name)
         self.setWindowIcon(QtGui.QIcon(":advancedSettings.png"))
         
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
@@ -161,7 +187,7 @@ class SettingsWindow(QtWidgets.QDialog):
     def create_ui(self):
         settings_dict = {}
         try:
-            settings_dict = json.load(open(self.output_path))
+            settings_dict = json.load(open(self.output_file_path))
         except:
             pass
 
@@ -208,9 +234,9 @@ class SettingsWindow(QtWidgets.QDialog):
             for key, value in self.textfield_widget_dict.iteritems():
                 self.output_data_dict[key] = value.text()
 
-            with open(self.output_path, "w") as outfile:
+            with open(self.output_file_path, "w") as outfile:
                 json.dump(self.output_data_dict, outfile, indent=4)
-            print("Saved settings: "+self.output_path)
+            print("Saved settings: "+self.output_file_path)
         except:
             cmds.warning("Can't save settings. Do you have permission to write to this file?")
 
