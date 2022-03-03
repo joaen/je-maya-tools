@@ -144,7 +144,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.settings_window.show()
     
     def switch(self, limb_name):
-        self.output_file_path = cmds.internalVar(userPrefDir=True)+"{}_settings.json".format(limb_name)
+        self.output_file_path = cmds.internalVar(userPrefDir=True)+"ikfk_settings_{}.json".format(limb_name)
         settings_dict = json.load(open(self.output_file_path))
         # Attritbute
         ikfk_attr_name = settings_dict.get("ikfk_attr_name")
