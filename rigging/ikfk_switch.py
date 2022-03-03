@@ -116,11 +116,41 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
 class SettingsWindow(QtWidgets.QDialog):
 
-    textfield_label_list = [
-        "ikfk_attr_name", "fk_ctrl_start", "fk_ctrl_mid", "fk_ctrl_end",
-        "ik_target_start", "ik_target_mid", "ik_target_end", "ik_ctrl",
-        "ik_pv_ctrl", "fk_target_start", "fk_target_mid", "fk_target_end"
-    ]
+    # textfield_label_list = [
+    #     "ikfk_attr_name", "fk_ctrl_start", "fk_ctrl_mid", "fk_ctrl_end",
+    #     "ik_target_start", "ik_target_mid", "ik_target_end", "ik_ctrl",
+    #     "ik_pv_ctrl", "fk_target_start", "fk_target_mid", "fk_target_end"
+    # ]
+
+    textfield_widget_dict = {
+        "ikfk_attr_name" : "",
+        "fk_ctrl_start" : "",
+        "fk_ctrl_mid" : "",
+        "fk_ctrl_end" : "",
+        "ik_target_start" : "",
+        "ik_target_mid" : "",
+        "ik_target_end" : "",
+        "ik_ctrl" : "",
+        "ik_pv_ctrl" : "",
+        "fk_target_start" : "",
+        "fk_target_mid" : "",
+        "fk_target_end" : ""
+    }
+
+    output_data_dict = {
+        "ikfk_attr_name" : "",
+        "fk_ctrl_start" : "",
+        "fk_ctrl_mid" : "",
+        "fk_ctrl_end" : "",
+        "ik_target_start" : "",
+        "ik_target_mid" : "",
+        "ik_target_end" : "",
+        "ik_ctrl" : "",
+        "ik_pv_ctrl" : "",
+        "fk_target_start" : "",
+        "fk_target_mid" : "",
+        "fk_target_end" : ""
+    }
 
     output_path = cmds.internalVar(userPrefDir=True)+"ikfk_switch_settings.json"
 
@@ -131,36 +161,26 @@ class SettingsWindow(QtWidgets.QDialog):
         
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.resize(320, 120)
-        self.create_ui_widgets()
-        self.create_ui_layout()
+        self.create_ui()
         self.create_ui_connections()
 
         if cmds.about(macOS=True):
             self.setWindowFlags(QtCore.Qt.Tool)
- 
-    def create_ui_widgets(self):
-        self.textfield_widget_list = []
-        self.label_widget_list = []
+            
+    def create_ui(self):
+        # self.label_widget_list = []
         settings_dict = json.load(open(self.output_path))
 
-        for i in self.textfield_label_list:
-            label = QtWidgets.QLabel(str(i))
+        for key in self.textfield_widget_dict:
+            label = QtWidgets.QLabel(str(key))
             textfield = QtWidgets.QLineEdit()
-            self.textfield_widget_list.append(textfield)
-            self.label_widget_list.append(label)
-            textfield.setText(settings_dict[i])
+            # textfield.text
+            # self.label_widget_list.append(label)
+            textfield.setText(settings_dict[key])
+            self.textfield_widget_dict[key] = textfield
 
         self.save_button = QtWidgets.QPushButton("Save settings")
         self.close_button = QtWidgets.QPushButton("Cancel")
-
-        # output_path = "/Users/jengberg/Desktop/je_test.json"
-        # settings_dict = json.load(open(self.output_path))
-        # for i in self.textfield_label_list:
-            # settings_dict[i]
-
-
-            
-    def create_ui_layout(self):
         
         button_layout = QtWidgets.QHBoxLayout()
         button_layout.addWidget(self.save_button)
@@ -169,51 +189,35 @@ class SettingsWindow(QtWidgets.QDialog):
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(10, 20, 10, 10)
 
-        for n in range(0, 12):
+        for key in self.textfield_widget_dict:
+
+            label = QtWidgets.QLabel(str(key))
             label_layout = QtWidgets.QHBoxLayout()
-            label_layout.addWidget(self.label_widget_list[n])
-            label_layout.addWidget(self.textfield_widget_list[n])
+            label_layout.addWidget(label)
+            label_layout.addWidget(self.textfield_widget_dict[key])
             main_layout.addLayout(label_layout)
+            # label.setTe
         
         main_layout.addLayout(button_layout)
         main_layout.addStretch()
  
     def create_ui_connections(self):
         self.save_button.clicked.connect(self.save_settings)
+        self.close_button.clicked.connect(self.close_settings)
+
+    def close_settings(self):
+        print(self.label_widget_list[0])
+
 
     def save_settings(self):
-        # self.output_path = cmds.internalVar(userPrefDir=True)+"ikfk_switch_settings.json"
+        for key, value in self.textfield_widget_dict.iteritems():
+            # self.textfield_widget_dict.get(key) = 
+            self.output_data_dict[key] = value.text()
+            print(value.text())
 
-        dict = {
-            "ikfk_attr_name" : "",
-            "fk_ctrl_start" : "",
-            "fk_ctrl_mid" : "",
-            "fk_ctrl_end" : "",
-            "ik_target_start" : "",
-            "ik_target_mid" : "",
-            "ik_target_end" : "",
-            "ik_ctrl" : "",
-            "ik_pv_ctrl" : "",
-            "fk_target_start" : "",
-            "fk_target_mid" : "",
-            "fk_target_end" : ""
-            }
+        # with open(self.output_path, 'w') as outfile:
+        #     json.dump(self.output_data_dict, outfile, indent=4)
 
-        dict["ikfk_attr_name"] = "CTRL_L__WristPinner.IKFK"
-        dict["fk_ctrl_start"] = "CTRL_FK_L__Shoulder"
-        dict["fk_ctrl_mid"] = "CTRL_FK_L__Elbow"
-        dict["fk_ctrl_end"] = "CTRL_FK_L__Wrist"
-        dict["ik_target_start"] = "rig_L__Shoulder_IK"
-        dict["ik_target_mid"] = "rig_L__Elbow_IK"
-        dict["ik_target_end"] = "rig_L__Wrist_IK"
-        dict["ik_ctrl"] = "CTRL_L__Hand"
-        dict["ik_pv_ctrl"] = "CTRL_L__ElbowPole"
-        dict["fk_target_start"] = "rig_L__Shoulder_FK"
-        dict["fk_target_mid"] = "rig_L__Elbow_FK"
-        dict["fk_target_end"] = "rig_L__Wrist_FK"
-
-        with open(self.output_path, 'w') as outfile:
-            json.dump(dict, outfile, indent=4)
         print("Saved settings: "+self.output_path)
 
 def start():
