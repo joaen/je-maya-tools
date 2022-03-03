@@ -142,8 +142,16 @@ class SettingsWindow(QtWidgets.QDialog):
             textfield = QtWidgets.QLineEdit()
             self.textfield_widget_list.append(textfield)
             self.label_widget_list.append(label)
+
+        self.save_button = QtWidgets.QPushButton("Save settings")
+        self.close_button = QtWidgets.QPushButton("Cancel")
             
     def create_ui_layout(self):
+        
+        button_layout = QtWidgets.QHBoxLayout()
+        button_layout.addWidget(self.save_button)
+        button_layout.addWidget(self.close_button)
+
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(10, 20, 10, 10)
 
@@ -152,7 +160,8 @@ class SettingsWindow(QtWidgets.QDialog):
             label_layout.addWidget(self.label_widget_list[n])
             label_layout.addWidget(self.textfield_widget_list[n])
             main_layout.addLayout(label_layout)
-
+        
+        main_layout.addLayout(button_layout)
         main_layout.addStretch()
  
     def create_ui_connections(self):
