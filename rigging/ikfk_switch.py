@@ -76,11 +76,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
         horizontal_layout2 = QtWidgets.QHBoxLayout()
         horizontal_layout2.addWidget(self.template_button3)
         horizontal_layout2.addWidget(self.template_button4)
-        # vertical_layout.addWidget(self.template_label)
-        # vertical_layout.addWidget(self.template_checkbox)
-        # vertical_layout.addWidget(self.template_combobox)
-        # vertical_layout.addWidget(self.template_slider)
-        # horizontal_layout2.addSpacing(20)
+
 
         horizontal_layout = QtWidgets.QHBoxLayout()
         horizontal_layout.addWidget(self.template_icon_button)
@@ -90,19 +86,20 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(10, 20, 10, 10)
-        # main_layout.addWidget(self.template_label)
-        # main_layout
+
         main_layout.addLayout(horizontal_layout1)
         main_layout.addLayout(horizontal_layout2)
         main_layout.addSpacing(30)
         main_layout.addLayout(horizontal_layout)
         main_layout.addStretch()
-        # main_layout.addLayout(vertical_layout)
  
     def create_ui_connections(self):
-        # self.template_button1.clicked.connect(self.open_settings_window)
         self.template_icon_button.clicked.connect(self.open_settings_window)
-        # self.template_slider.valueChanged.connect(self.open_settings_window)
+        self.close_button.clicked.connect(self.close_ikfk_window)
+
+    def close_ikfk_window(self):
+        self.close()
+        self.deleteLater()
 
     def open_settings_window(self):
         try:
@@ -115,12 +112,6 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
 
 class SettingsWindow(QtWidgets.QDialog):
-
-    # textfield_label_list = [
-    #     "ikfk_attr_name", "fk_ctrl_start", "fk_ctrl_mid", "fk_ctrl_end",
-    #     "ik_target_start", "ik_target_mid", "ik_target_end", "ik_ctrl",
-    #     "ik_pv_ctrl", "fk_target_start", "fk_target_mid", "fk_target_end"
-    # ]
 
     textfield_widget_dict = {
         "ikfk_attr_name" : "",
@@ -168,15 +159,19 @@ class SettingsWindow(QtWidgets.QDialog):
             self.setWindowFlags(QtCore.Qt.Tool)
             
     def create_ui(self):
-        # self.label_widget_list = []
-        settings_dict = json.load(open(self.output_path))
+        settings_dict = {}
+        try:
+            settings_dict = json.load(open(self.output_path))
+        except:
+            pass
 
         for key in self.textfield_widget_dict:
             label = QtWidgets.QLabel(str(key))
             textfield = QtWidgets.QLineEdit()
-            # textfield.text
-            # self.label_widget_list.append(label)
-            textfield.setText(settings_dict[key])
+            try:
+                textfield.setText(settings_dict[key])
+            except:
+                pass
             self.textfield_widget_dict[key] = textfield
 
         self.save_button = QtWidgets.QPushButton("Save settings")
@@ -196,7 +191,6 @@ class SettingsWindow(QtWidgets.QDialog):
             label_layout.addWidget(label)
             label_layout.addWidget(self.textfield_widget_dict[key])
             main_layout.addLayout(label_layout)
-            # label.setTe
         
         main_layout.addLayout(button_layout)
         main_layout.addStretch()
@@ -206,19 +200,19 @@ class SettingsWindow(QtWidgets.QDialog):
         self.close_button.clicked.connect(self.close_settings)
 
     def close_settings(self):
-        print(self.label_widget_list[0])
-
+        self.close()
+        self.deleteLater()
 
     def save_settings(self):
-        for key, value in self.textfield_widget_dict.iteritems():
-            # self.textfield_widget_dict.get(key) = 
-            self.output_data_dict[key] = value.text()
-            print(value.text())
+        try:
+            for key, value in self.textfield_widget_dict.iteritems():
+                self.output_data_dict[key] = value.text()
 
-        # with open(self.output_path, 'w') as outfile:
-        #     json.dump(self.output_data_dict, outfile, indent=4)
-
-        print("Saved settings: "+self.output_path)
+            with open(self.output_path, "w") as outfile:
+                json.dump(self.output_data_dict, outfile, indent=4)
+            print("Saved settings: "+self.output_path)
+        except:
+            cmds.warning("Can't save settings. Do you have permission to write to this file?")
 
 def start():
     global template_tool_ui
