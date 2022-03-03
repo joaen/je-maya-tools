@@ -144,14 +144,14 @@ class SettingsWindow(QtWidgets.QDialog):
         "fk_ctrl_start" : "",
         "fk_ctrl_mid" : "",
         "fk_ctrl_end" : "",
-        "ik_target_start" : "",
-        "ik_target_mid" : "",
-        "ik_target_end" : "",
+        "ik_joint_start" : "",
+        "ik_joint_mid" : "",
+        "ik_joint_end" : "",
         "ik_ctrl" : "",
         "ik_pv_ctrl" : "",
-        "fk_target_start" : "",
-        "fk_target_mid" : "",
-        "fk_target_end" : ""
+        "fk_joint_start" : "",
+        "fk_joint_mid" : "",
+        "fk_joint_end" : ""
     }
 
     output_data_dict = {
@@ -159,14 +159,14 @@ class SettingsWindow(QtWidgets.QDialog):
         "fk_ctrl_start" : "",
         "fk_ctrl_mid" : "",
         "fk_ctrl_end" : "",
-        "ik_target_start" : "",
-        "ik_target_mid" : "",
-        "ik_target_end" : "",
+        "ik_joint_start" : "",
+        "ik_joint_mid" : "",
+        "ik_joint_end" : "",
         "ik_ctrl" : "",
         "ik_pv_ctrl" : "",
-        "fk_target_start" : "",
-        "fk_target_mid" : "",
-        "fk_target_end" : ""
+        "fk_joint_start" : "",
+        "fk_joint_mid" : "",
+        "fk_joint_end" : ""
     }
 
 
