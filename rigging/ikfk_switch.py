@@ -3,6 +3,7 @@ import maya.cmds as cmds
 import maya.OpenMayaUI as omui
 from shiboken2 import wrapInstance
 from PySide2 import QtCore, QtGui, QtWidgets
+import json
 
 
 def maya_main_window():
@@ -99,9 +100,9 @@ class TemplateToolWindow(QtWidgets.QDialog):
         # main_layout.addLayout(vertical_layout)
  
     def create_ui_connections(self):
-        self.template_button1.clicked.connect(self.open_settings_window)
+        # self.template_button1.clicked.connect(self.open_settings_window)
         self.template_icon_button.clicked.connect(self.open_settings_window)
-        self.template_slider.valueChanged.connect(self.open_settings_window)
+        # self.template_slider.valueChanged.connect(self.open_settings_window)
 
     def open_settings_window(self):
         try:
@@ -114,16 +115,19 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
 
 class SettingsWindow(QtWidgets.QDialog):
+
     textfield_label_list = [
         "ikfk_attr_name", "fk_ctrl_start", "fk_ctrl_mid", "fk_ctrl_end",
         "ik_target_start", "ik_target_mid", "ik_target_end", "ik_ctrl",
         "ik_pv_ctrl", "fk_target_start", "fk_target_mid", "fk_target_end"
     ]
 
+    output_path = cmds.internalVar(userPrefDir=True)+"ikfk_switch_settings.json"
 
     def __init__(self):
         super(SettingsWindow, self).__init__(maya_main_window())
         self.setWindowTitle("Settings")
+        self.setWindowIcon(QtGui.QIcon(":advancedSettings.png"))
         
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.resize(320, 120)
@@ -137,14 +141,24 @@ class SettingsWindow(QtWidgets.QDialog):
     def create_ui_widgets(self):
         self.textfield_widget_list = []
         self.label_widget_list = []
+        settings_dict = json.load(open(self.output_path))
+
         for i in self.textfield_label_list:
             label = QtWidgets.QLabel(str(i))
             textfield = QtWidgets.QLineEdit()
             self.textfield_widget_list.append(textfield)
             self.label_widget_list.append(label)
+            textfield.setText(settings_dict[i])
 
         self.save_button = QtWidgets.QPushButton("Save settings")
         self.close_button = QtWidgets.QPushButton("Cancel")
+
+        # output_path = "/Users/jengberg/Desktop/je_test.json"
+        # settings_dict = json.load(open(self.output_path))
+        # for i in self.textfield_label_list:
+            # settings_dict[i]
+
+
             
     def create_ui_layout(self):
         
@@ -165,10 +179,42 @@ class SettingsWindow(QtWidgets.QDialog):
         main_layout.addStretch()
  
     def create_ui_connections(self):
-        print("WOW")
+        self.save_button.clicked.connect(self.save_settings)
 
-    def template_command(self):
-        print("O")
+    def save_settings(self):
+        # self.output_path = cmds.internalVar(userPrefDir=True)+"ikfk_switch_settings.json"
+
+        dict = {
+            "ikfk_attr_name" : "",
+            "fk_ctrl_start" : "",
+            "fk_ctrl_mid" : "",
+            "fk_ctrl_end" : "",
+            "ik_target_start" : "",
+            "ik_target_mid" : "",
+            "ik_target_end" : "",
+            "ik_ctrl" : "",
+            "ik_pv_ctrl" : "",
+            "fk_target_start" : "",
+            "fk_target_mid" : "",
+            "fk_target_end" : ""
+            }
+
+        dict["ikfk_attr_name"] = "CTRL_L__WristPinner.IKFK"
+        dict["fk_ctrl_start"] = "CTRL_FK_L__Shoulder"
+        dict["fk_ctrl_mid"] = "CTRL_FK_L__Elbow"
+        dict["fk_ctrl_end"] = "CTRL_FK_L__Wrist"
+        dict["ik_target_start"] = "rig_L__Shoulder_IK"
+        dict["ik_target_mid"] = "rig_L__Elbow_IK"
+        dict["ik_target_end"] = "rig_L__Wrist_IK"
+        dict["ik_ctrl"] = "CTRL_L__Hand"
+        dict["ik_pv_ctrl"] = "CTRL_L__ElbowPole"
+        dict["fk_target_start"] = "rig_L__Shoulder_FK"
+        dict["fk_target_mid"] = "rig_L__Elbow_FK"
+        dict["fk_target_end"] = "rig_L__Wrist_FK"
+
+        with open(self.output_path, 'w') as outfile:
+            json.dump(dict, outfile, indent=4)
+        print("Saved settings: "+self.output_path)
 
 def start():
     global template_tool_ui
