@@ -125,6 +125,9 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.settings4_button.clicked.connect(partial(self.open_settings_window, "LeftLeg"))
 
         self.template_button1.clicked.connect(partial(self.switch, "RightArm"))
+        self.template_button2.clicked.connect(partial(self.switch, "LeftArm"))
+        self.template_button3.clicked.connect(partial(self.switch, "RightLeg"))
+        self.template_button4.clicked.connect(partial(self.switch, "LeftLeg"))
         self.close_button.clicked.connect(self.close_ikfk_window)
 
     def close_ikfk_window(self):
@@ -300,8 +303,11 @@ class SettingsWindow(QtWidgets.QDialog):
             with open(self.output_file_path, "w") as outfile:
                 json.dump(self.output_data_dict, outfile, indent=4)
             print("Saved settings: "+self.output_file_path)
+            self.close()
+            self.deleteLater()
         except:
             cmds.warning("Can't save settings. Do you have permission to write to this file?")
+            
 
 def start():
     global template_tool_ui
