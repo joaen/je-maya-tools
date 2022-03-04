@@ -175,23 +175,18 @@ class TemplateToolWindow(QtWidgets.QDialog):
             # Set attribute
             cmds.setAttr(ikfk_attr_name, 0)
 
-            # IK controller
-            pos = om.MVector(cmds.xform(fk_joint_end, query=True, translation=True, worldSpace=True))
-            mat = om.MMatrix(cmds.xform(fk_joint_end, query=True, matrix=True, worldSpace=True))
+            # Create offset locator and move it to the target transform
+            offset_loc = cmds.spaceLocator()
+            cmds.matchTransform(offset_loc, fk_joint_end)
+
+            # Add condition to add rotation
+            my_bool = False
+            if my_bool == True:
+                cmds.rotate("90deg", "180deg", "0deg", "locator1", relative=True, objectSpace=True)
+
+            # Match the ik ctrl transform with the offset transform
+            cmds.matchTransform(ik_ctrl, offset_loc)
             
-            side_vector = om.MVector(mat[0], mat[1], mat[2])
-            up_vector = om.MVector(mat[4], mat[5], mat[6])
-            fwd_vector = om.MVector(mat[8], mat[9], mat[10])
-
-            x = [side_vector.x, side_vector.y, side_vector.z, 0]
-            y = [up_vector.x, up_vector.y, up_vector.z, 0]
-            z = [fwd_vector.x, fwd_vector.y, fwd_vector.z, 0]
-            o = [pos.x, pos.y, pos.z, 1]
-
-            matrix_list = [x, y, z, o]
-            joint_matrix = om.MMatrix(matrix_list)
-            cmds.xform(ik_ctrl, matrix=joint_matrix, worldSpace=True)
-
             # Pole vector
             cmds.matchTransform(ik_pv_ctrl, fk_joint_mid, position=True)
 
