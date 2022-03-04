@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from functools import partial
 import sys
 import maya.cmds as cmds
@@ -23,7 +24,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
         
         # self.output_file_path = cmds.internalVar(userPrefDir=True)+"{}_settings.json".format(limb_name)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
-        self.resize(360, 120)
+        self.resize(364, 120)
         self.create_ui_widgets()
         self.create_ui_layout()
         self.create_ui_connections()
@@ -36,12 +37,16 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
         self.template_button1 = QtWidgets.QPushButton("RIGHT ARM")
         self.template_button1.setStyleSheet("background-color: lightgreen; color: black")
+        self.template_button1.setFixedWidth(120)
         self.template_button2 = QtWidgets.QPushButton("LEFT ARM")
         self.template_button2.setStyleSheet("background-color: salmon; color: black")
+        self.template_button2.setFixedWidth(120)
         self.template_button3 = QtWidgets.QPushButton("RIGHT LEG")
         self.template_button3.setStyleSheet("background-color: lightgreen; color: black")
+        self.template_button3.setFixedWidth(120)
         self.template_button4 = QtWidgets.QPushButton("LEFT LEG")
         self.template_button4.setStyleSheet("background-color: salmon; color: black")
+        self.template_button4.setFixedWidth(120)
 
         self.template_checkbox = QtWidgets.QCheckBox("TEMPLATE_CHECKBOX")
         self.template_combobox = QtWidgets.QComboBox()
@@ -49,8 +54,6 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.template_textfield = QtWidgets.QLineEdit()
         self.template_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
 
-        self.close_button = QtWidgets.QPushButton("Close")
-        self.close_button.setFixedWidth(100)
 
         # setting background color to push button when mouse hover over it
         icon_button_css = (
@@ -83,6 +86,17 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.help_icon_button.setFixedSize(24, 24)
         self.help_icon_button.setStyleSheet(icon_button_css)
 
+        self.close_button = QtWidgets.QPushButton("Close")
+        self.close_button.setFixedWidth(100)
+
+        self.hide_checkbox = QtWidgets.QCheckBox("Show settings")
+        # self.hide_checkbox.
+        # self.hide_checkbox.setChecked(True)
+
+        self.settings1_button.setVisible(False)
+        self.settings2_button.setVisible(False)
+        self.settings3_button.setVisible(False)
+        self.settings4_button.setVisible(False)
         
 
     def create_ui_layout(self):
@@ -104,9 +118,9 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
 
         horizontal_layout = QtWidgets.QHBoxLayout()
-        # horizontal_layout.addWidget(self.settings1_button)
-        horizontal_layout.addStretch()
         horizontal_layout.addWidget(self.help_icon_button)
+        horizontal_layout.addStretch()
+        horizontal_layout.addWidget(self.hide_checkbox)
         horizontal_layout.addWidget(self.close_button)
 
         main_layout = QtWidgets.QVBoxLayout(self)
@@ -128,7 +142,23 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.template_button2.clicked.connect(partial(self.switch, "LeftArm"))
         self.template_button3.clicked.connect(partial(self.switch, "RightLeg"))
         self.template_button4.clicked.connect(partial(self.switch, "LeftLeg"))
+        self.hide_checkbox.clicked.connect(self.toggle_settings)
         self.close_button.clicked.connect(self.close_ikfk_window)
+
+    def toggle_settings(self):
+
+        if self.hide_checkbox.isChecked() == True:
+            self.settings1_button.setVisible(True)
+            self.settings2_button.setVisible(True) 
+            self.settings3_button.setVisible(True) 
+            self.settings4_button.setVisible(True)
+        elif self.hide_checkbox.isChecked() == False:
+            self.settings1_button.setVisible(False)
+            self.settings2_button.setVisible(False) 
+            self.settings3_button.setVisible(False) 
+            self.settings4_button.setVisible(False)
+        # pass
+ 
 
     def close_ikfk_window(self):
         self.close()
@@ -147,7 +177,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.output_file_path = cmds.internalVar(userPrefDir=True)+"ikfk_settings_{}.json".format(limb_name)
         settings_dict = json.load(open(self.output_file_path))
         # Attritbute
-        ikfk_attr_name = settings_dict.get("ikfk_attr_name")
+        ikfk_attr_name = settings_dict.get("IKFK_blend_attr")
         print("Loaded settings from: "+self.output_file_path)
         # print(ikfk_attr_name)
 
@@ -155,21 +185,21 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
         # # FK
 
-        fk_ctrl_start = settings_dict.get("fk_ctrl_start")
-        fk_ctrl_mid = settings_dict.get("fk_ctrl_mid")
-        fk_ctrl_end = settings_dict.get("fk_ctrl_end")
+        fk_ctrl_start = settings_dict.get("FK_ctrl_start")
+        fk_ctrl_mid = settings_dict.get("FK_ctrl_mid")
+        fk_ctrl_end = settings_dict.get("FK_ctrl_end")
         
-        ik_joint_start = settings_dict.get("ik_joint_start")
-        ik_joint_mid = settings_dict.get("ik_joint_mid")
-        ik_joint_end = settings_dict.get("ik_joint_end")
+        ik_joint_start = settings_dict.get("IK_joint_start")
+        ik_joint_mid = settings_dict.get("IK_joint_mid")
+        ik_joint_end = settings_dict.get("IK_joint_end")
 
         # IK 
-        ik_ctrl = settings_dict.get("ik_ctrl")
-        ik_pv_ctrl = settings_dict.get("ik_pv_ctrl")
+        ik_ctrl = settings_dict.get("IK_ctrl")
+        ik_pole_ctrl = settings_dict.get("IK_pole_ctrl")
 
-        fk_joint_start = settings_dict.get("fk_joint_start")
-        fk_joint_mid = settings_dict.get("fk_joint_mid")
-        fk_joint_end = settings_dict.get("fk_joint_end")
+        # fk_joint_start = settings_dict.get("fk_joint_start")
+        # fk_joint_mid = settings_dict.get("fk_joint_mid")
+        # fk_joint_end = settings_dict.get("fk_joint_end")
 
         if ikfk_attr_value == 1:
             # Set attribute
@@ -177,7 +207,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
             # Create offset locator and move it to the target transform
             offset_loc = cmds.spaceLocator()
-            cmds.matchTransform(offset_loc, fk_joint_end)
+            cmds.matchTransform(offset_loc, fk_ctrl_end)
 
             # Add condition to add rotation
             my_bool = False
@@ -186,9 +216,9 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
             # Match the ik ctrl transform with the offset transform
             cmds.matchTransform(ik_ctrl, offset_loc)
-            
+
             # Pole vector
-            cmds.matchTransform(ik_pv_ctrl, fk_joint_mid, position=True)
+            cmds.matchTransform(ik_pole_ctrl, fk_ctrl_mid, position=True)
 
         elif ikfk_attr_value == 0:
             # Set attribute
@@ -201,35 +231,35 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
 class SettingsWindow(QtWidgets.QDialog):
 
-    textfield_widget_dict = {
-        "ikfk_attr_name" : "",
-        "fk_ctrl_start" : "",
-        "fk_ctrl_mid" : "",
-        "fk_ctrl_end" : "",
-        "ik_joint_start" : "",
-        "ik_joint_mid" : "",
-        "ik_joint_end" : "",
-        "ik_ctrl" : "",
-        "ik_pv_ctrl" : "",
-        "fk_joint_start" : "",
-        "fk_joint_mid" : "",
-        "fk_joint_end" : ""
-    }
+    textfield_widget_dict = OrderedDict([
+        ("IKFK_blend_attr", ""),
+        ("FK_ctrl_start", ""),
+        ("FK_ctrl_mid", ""),
+        ("FK_ctrl_end", ""),
+        ("IK_joint_start", ""),
+        ("IK_joint_mid", ""),
+        ("IK_joint_end", ""),
+        ("IK_ctrl", ""),
+        ("IK_pole_ctrl", "")
+        # ("fk_joint_start", ""),
+        # ("fk_joint_mid", ""),
+        # ("fk_joint_end", "")
+    ])
 
-    output_data_dict = {
-        "ikfk_attr_name" : "",
-        "fk_ctrl_start" : "",
-        "fk_ctrl_mid" : "",
-        "fk_ctrl_end" : "",
-        "ik_joint_start" : "",
-        "ik_joint_mid" : "",
-        "ik_joint_end" : "",
-        "ik_ctrl" : "",
-        "ik_pv_ctrl" : "",
-        "fk_joint_start" : "",
-        "fk_joint_mid" : "",
-        "fk_joint_end" : ""
-    }
+    output_data_dict = OrderedDict([
+        ("IKFK_blend_attr", ""),
+        ("FK_ctrl_start", ""),
+        ("FK_ctrl_mid", ""),
+        ("FK_ctrl_end", ""),
+        ("IK_joint_start", ""),
+        ("IK_joint_mid", ""),
+        ("IK_joint_end", ""),
+        ("IK_ctrl", ""),
+        ("IK_pole_ctrl", "")
+        # ("fk_joint_start", ""),
+        # ("fk_joint_mid", ""),
+        # ("fk_joint_end", "")
+    ])
 
 
     def __init__(self, limb_name):
@@ -240,13 +270,13 @@ class SettingsWindow(QtWidgets.QDialog):
         
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.resize(320, 120)
-        self.create_ui()
+        self.create_ui_layout()
         self.create_ui_connections()
 
         if cmds.about(macOS=True):
             self.setWindowFlags(QtCore.Qt.Tool)
             
-    def create_ui(self):
+    def create_ui_layout(self):
         settings_dict = {}
         try:
             settings_dict = json.load(open(self.output_file_path))
