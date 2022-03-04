@@ -246,21 +246,7 @@ class SettingsWindow(QtWidgets.QDialog):
         # ("fk_joint_end", "")
     ])
 
-    output_data_dict = OrderedDict([
-        ("IKFK_blend_attr", ""),
-        ("FK_ctrl_start", ""),
-        ("FK_ctrl_mid", ""),
-        ("FK_ctrl_end", ""),
-        ("IK_joint_start", ""),
-        ("IK_joint_mid", ""),
-        ("IK_joint_end", ""),
-        ("IK_ctrl", ""),
-        ("IK_pole_ctrl", "")
-        # ("fk_joint_start", ""),
-        # ("fk_joint_mid", ""),
-        # ("fk_joint_end", "")
-    ])
-
+    output_data_dict = OrderedDict(textfield_widget_dict)
 
     def __init__(self, limb_name):
         super(SettingsWindow, self).__init__(maya_main_window())
