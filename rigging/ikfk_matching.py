@@ -215,28 +215,32 @@ class TemplateToolWindow(QtWidgets.QDialog):
         # fk_joint_start = settings_dict.get("fk_joint_start")
         # fk_joint_mid = settings_dict.get("fk_joint_mid")
         # fk_joint_end = settings_dict.get("fk_joint_end")
+        # print(settings_dict.get("FK"))
+        # print(settings_dict.get("IK"))
 
-        if ikfk_attr_value == 1:
+        if ikfk_attr_value == int(settings_dict.get("FK")):
             # Set attribute
             cmds.setAttr(ikfk_attr_name, 0)
 
             # Create offset locator and move it to the target transform
-            offset_loc = cmds.spaceLocator()
-            cmds.matchTransform(offset_loc, fk_ctrl_end)
+            # offset_loc = cmds.spaceLocator()
+            # cmds.matchTransform(offset_loc, fk_ctrl_end)
 
-            # Add condition to add rotation
-            my_bool = False
-            if my_bool == True:
-                cmds.rotate("90deg", "180deg", "0deg", "locator1", relative=True, objectSpace=True)
 
             # Match the ik ctrl transform with the offset transform
-            cmds.matchTransform(ik_ctrl, offset_loc)
+            cmds.matchTransform(ik_ctrl, fk_ctrl_end)
 
+            # Add condition to add rotation
+            offset_x = settings_dict.get("Offset X")+"deg"
+            offset_y = settings_dict.get("Offset Y")+"deg"
+            offset_z = settings_dict.get("Offset Z")+"deg"
+            cmds.rotate(offset_x, offset_y, offset_z, ik_ctrl, relative=True, objectSpace=True)
             # Pole vector
-            pole_pos = self.get_pole_position("FK_ctrl_start", "FK_ctrl_mid", "FK_ctrl_end", 2)
-            cmds.move(pole_pos[0], pole_pos[1], pole_pos[2], ik_pole_ctrl, absolute=True, worldSpace=True)
+            # pole_pos = self.get_pole_position(fk_ctrl_start, fk_ctrl_mid, fk_ctrl_end, 1)
+            # cmds.move(pole_pos[0], pole_pos[1], pole_pos[2], ik_pole_ctrl, absolute=True, worldSpace=True)
+            cmds.matchTransform(ik_pole_ctrl, fk_ctrl_mid)
 
-        elif ikfk_attr_value == 0:
+        elif ikfk_attr_value == int(settings_dict.get("IK")):
             # Set attribute
             cmds.setAttr(ikfk_attr_name, 1)
 
