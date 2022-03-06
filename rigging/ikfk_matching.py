@@ -262,6 +262,7 @@ class SettingsWindow(QtWidgets.QDialog):
 
     def __init__(self, limb_name):
         super(SettingsWindow, self).__init__(maya_main_window())
+        self.limb_name = limb_name
         self.output_file_path = cmds.internalVar(userPrefDir=True)+"ikfk_settings_{}.json".format(limb_name)
         self.setWindowTitle("Settings - "+limb_name)
         self.setWindowIcon(QtGui.QIcon(":advancedSettings.png"))
@@ -300,6 +301,11 @@ class SettingsWindow(QtWidgets.QDialog):
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(10, 20, 10, 10)
 
+        self.settings_label = QtWidgets.QLabel(str(self.limb_name)+" settings")
+        self.settings_label.setStyleSheet("background-color: #5d5d5d; border: 1px solid #5d5d5d; border-radius: 2px;font-weight: bold;")
+        self.settings_label.setFixedHeight(20)
+        main_layout.addWidget(self.settings_label)
+
         test_layout = QtWidgets.QHBoxLayout()
         attr_layout = QtWidgets.QHBoxLayout()
         for key in self.textfield_widget_dict:
@@ -310,6 +316,8 @@ class SettingsWindow(QtWidgets.QDialog):
                 main_layout.addLayout(attr_layout)
             elif key == "Offset X":
                 degree_label = QtWidgets.QLabel("Rotation offset on IK controller (Degrees):")
+                degree_label.setStyleSheet("background-color: #5d5d5d; border: 1px solid #5d5d5d; border-radius: 2px;font-weight: bold;")
+                degree_label.setFixedHeight(20)
                 label = QtWidgets.QLabel(str(key))
                 test_layout.addWidget(label)
                 test_layout.addWidget(self.textfield_widget_dict[key])
@@ -345,14 +353,28 @@ class SettingsWindow(QtWidgets.QDialog):
         self.replace_button = QtWidgets.QPushButton()
         self.replace_button.setIcon(QtGui.QIcon(":renamePreset.png"))
         self.replace_button.setFixedSize(24, 24)
-
         search_row.addWidget(self.keyword_label)
         search_row.addWidget(self.keyword_textfield)
         search_row.addWidget(self.replace_label)
         search_row.addWidget(self.replace_textfield)
         search_row.addWidget(self.replace_button)
 
+        copy_row = QtWidgets.QHBoxLayout()
+        self.copy_label = QtWidgets.QLabel("Copy text from:")
+        self.copy_label.setStyleSheet("background-color: #5d5d5d; border: 1px solid #5d5d5d; border-radius: 2px;font-weight: bold;")
+        self.copy_label.setFixedHeight(20)
+        self.copy_left_arm_button = QtWidgets.QPushButton("Left arm")
+        self.copy_right_arm_button = QtWidgets.QPushButton("Right arm")
+        self.copy_left_leg_button = QtWidgets.QPushButton("Left leg")
+        self.copy_right_leg_button = QtWidgets.QPushButton("Right leg")
 
+        copy_row.addWidget(self.copy_left_arm_button)
+        copy_row.addWidget(self.copy_right_arm_button)
+        copy_row.addWidget(self.copy_left_leg_button)
+        copy_row.addWidget(self.copy_right_leg_button)
+
+        main_layout.addWidget(self.copy_label)
+        main_layout.addLayout(copy_row)
         main_layout.addLayout(search_row)
         main_layout.addSpacing(24)
         main_layout.addLayout(button_layout)
@@ -368,12 +390,9 @@ class SettingsWindow(QtWidgets.QDialog):
         self.deleteLater()
 
     def search_and_replace(self):
-        # selected = cmds.ls(sl=True, objectsOnly=True)
         keyword = self.keyword_textfield.text()
         replace_with = self.replace_textfield.text()
-        # self.renamed_nodes = []
 
-        # Loop through the selected nodes and check if we keyword the input string in the names
         for key, widget in self.textfield_widget_dict.items():
             if keyword in widget.text():
                 new_string = widget.text().replace(keyword, replace_with)
