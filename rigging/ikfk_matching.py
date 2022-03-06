@@ -216,9 +216,11 @@ class TemplateToolWindow(QtWidgets.QDialog):
         ik_joint_end = settings_dict.get("IK_joint_end")
         ik_ctrl = settings_dict.get("IK_ctrl")
         ik_pole_ctrl = settings_dict.get("IK_pole_ctrl")
+        ik_value = int(settings_dict.get("IK"))
+        fk_value = int(settings_dict.get("FK"))
 
-        if ikfk_attr_value == int(settings_dict.get("FK")):
-            cmds.setAttr(ikfk_attr_name, 0)
+        if ikfk_attr_value == fk_value:
+            cmds.setAttr(ikfk_attr_name, ik_value)
             cmds.matchTransform(ik_ctrl, fk_ctrl_end)
 
             # Check rotation offset from settings file and add rotation to the IK ctrl
@@ -238,15 +240,12 @@ class TemplateToolWindow(QtWidgets.QDialog):
                 offset_z = settings_dict.get("Offset Z")+"deg"
 
             cmds.rotate(offset_x, offset_y, offset_z, ik_ctrl, relative=True, objectSpace=True)
-
-            # Pole vector position
             pole_locator = self.create_loc(fk_ctrl_start, fk_ctrl_mid, fk_ctrl_end, 2)
             cmds.matchTransform(ik_pole_ctrl, pole_locator)
             cmds.delete(pole_locator)
 
-        elif ikfk_attr_value == int(settings_dict.get("IK")):
-            cmds.setAttr(ikfk_attr_name, 1)
-
+        elif ikfk_attr_value == ik_value:
+            cmds.setAttr(ikfk_attr_name, fk_value)
             cmds.matchTransform(fk_ctrl_start, ik_joint_start, rotation=True)
             cmds.matchTransform(fk_ctrl_mid, ik_joint_mid, rotation=True)
             cmds.matchTransform(fk_ctrl_end, ik_joint_end, rotation=True)
