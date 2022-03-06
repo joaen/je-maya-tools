@@ -172,6 +172,21 @@ class TemplateToolWindow(QtWidgets.QDialog):
             pass
         self.settings_window = SettingsWindow(limb_name)
         self.settings_window.show()
+
+    def get_pole_position(self, start_joint, mid_joint, end_joint, offset):
+        # Get joint poistions as vectors
+        joint1_pos = om.MVector(cmds.xform(start_joint, query=True, worldSpace=True, translation=True))
+        joint2_pos = om.MVector(cmds.xform(mid_joint, query=True, worldSpace=True, translation=True))
+        joint3_pos = om.MVector(cmds.xform(end_joint, query=True, worldSpace=True, translation=True))
+
+        # Calculate the mid point between joint1 and joint3
+        mid_point_pos = joint1_pos + (joint3_pos - joint1_pos).normal() * ((joint3_pos - joint1_pos).length() * 0.5)
+
+        # Get the pole vector position by aiming from the mid point towards joint2 position. Scale the vector using the offset float.
+        pole_vec = mid_point_pos + (joint2_pos - mid_point_pos).normal() * ((joint2_pos - mid_point_pos).length() * offset)
+        
+        print("Pole position: "+str(pole_vec))
+        return pole_vec
     
     def match_ikfk(self, limb_name):
         self.output_file_path = cmds.internalVar(userPrefDir=True)+"ikfk_settings_{}.json".format(limb_name)
@@ -218,7 +233,8 @@ class TemplateToolWindow(QtWidgets.QDialog):
             cmds.matchTransform(ik_ctrl, offset_loc)
 
             # Pole vector
-            cmds.matchTransform(ik_pole_ctrl, fk_ctrl_mid, position=True)
+            pole_pos = self.get_pole_position("FK_ctrl_start", "FK_ctrl_mid", "FK_ctrl_end", 2)
+            cmds.move(pole_pos[0], pole_pos[1], pole_pos[2], ik_pole_ctrl, absolute=True, worldSpace=True)
 
         elif ikfk_attr_value == 0:
             # Set attribute
