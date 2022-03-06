@@ -185,7 +185,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
         # Get the pole vector position by aiming from the mid point towards joint2 position. Scale the vector using the offset float.
         pole_vec = mid_point_pos + (joint2_pos - mid_point_pos).normal() * ((joint2_pos - mid_point_pos).length() * offset)
         
-        print("Pole position: "+str(pole_vec))
+        # print("Pole position: "+str(pole_vec))
         return pole_vec
 
     def create_loc(self, start_joint, mid_joint, end_joint, offset=2):
@@ -289,9 +289,6 @@ class SettingsWindow(QtWidgets.QDialog):
         ("Offset X", ""),
         ("Offset Y", ""),
         ("Offset Z", "")
-        # ("fk_joint_start", ""),
-        # ("fk_joint_mid", ""),
-        # ("fk_joint_end", "")
     ])
 
     output_data_dict = OrderedDict(textfield_widget_dict)
