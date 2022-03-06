@@ -223,21 +223,9 @@ class TemplateToolWindow(QtWidgets.QDialog):
             cmds.setAttr(ikfk_attr_name, ik_value)
             cmds.matchTransform(ik_ctrl, fk_ctrl_end)
 
-            # Check rotation offset from settings file and add rotation to the IK ctrl
-            if settings_dict.get("Offset X") == "":
-                offset_x = "0deg"
-            else:
-                offset_x = settings_dict.get("Offset X")+"deg"
-
-            if settings_dict.get("Offset Y") == "":
-                offset_y = "0deg"
-            else:
-                offset_y = settings_dict.get("Offset Y")+"deg"
-
-            if settings_dict.get("Offset Z") == "":
-                offset_z = "0deg"
-            else:
-                offset_z = settings_dict.get("Offset Z")+"deg"
+            offset_x = settings_dict.get("Offset X")+"deg"
+            offset_y = settings_dict.get("Offset Y")+"deg"
+            offset_z = settings_dict.get("Offset Z")+"deg"
 
             cmds.rotate(offset_x, offset_y, offset_z, ik_ctrl, relative=True, objectSpace=True)
             pole_locator = self.create_loc(fk_ctrl_start, fk_ctrl_mid, fk_ctrl_end, 2)
@@ -279,7 +267,7 @@ class SettingsWindow(QtWidgets.QDialog):
         self.setWindowIcon(QtGui.QIcon(":advancedSettings.png"))
         
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
-        self.resize(320, 120)
+        self.resize(400, 120)
         self.create_ui_layout()
         self.create_ui_connections()
 
@@ -343,16 +331,54 @@ class SettingsWindow(QtWidgets.QDialog):
         
         self.textfield_widget_dict.get("IK").setFixedWidth(24)
         self.textfield_widget_dict.get("FK").setFixedWidth(24)
+        self.textfield_widget_dict.get("IK").setText(str(0))
+        self.textfield_widget_dict.get("FK").setText(str(0))
+        self.textfield_widget_dict.get("Offset X").setText(str(0))
+        self.textfield_widget_dict.get("Offset Y").setText(str(0))
+        self.textfield_widget_dict.get("Offset Z").setText(str(0))
+
+        search_row = QtWidgets.QHBoxLayout()
+        self.keyword_label = QtWidgets.QLabel("Search for:")
+        self.keyword_textfield = QtWidgets.QLineEdit()
+        self.replace_label = QtWidgets.QLabel("Replace with:")
+        self.replace_textfield = QtWidgets.QLineEdit()
+        self.replace_button = QtWidgets.QPushButton()
+        self.replace_button.setIcon(QtGui.QIcon(":renamePreset.png"))
+        self.replace_button.setFixedSize(24, 24)
+
+        search_row.addWidget(self.keyword_label)
+        search_row.addWidget(self.keyword_textfield)
+        search_row.addWidget(self.replace_label)
+        search_row.addWidget(self.replace_textfield)
+        search_row.addWidget(self.replace_button)
+
+
+        main_layout.addLayout(search_row)
+        main_layout.addSpacing(24)
         main_layout.addLayout(button_layout)
         main_layout.addStretch()
  
     def create_ui_connections(self):
         self.save_button.clicked.connect(self.save_settings)
         self.close_button.clicked.connect(self.close_settings)
+        self.replace_button.clicked.connect(self.search_and_replace)
 
     def close_settings(self):
         self.close()
         self.deleteLater()
+
+    def search_and_replace(self):
+        # selected = cmds.ls(sl=True, objectsOnly=True)
+        keyword = self.keyword_textfield.text()
+        replace_with = self.replace_textfield.text()
+        # self.renamed_nodes = []
+
+        # Loop through the selected nodes and check if we keyword the input string in the names
+        for key, widget in self.textfield_widget_dict.items():
+            if keyword in widget.text():
+                new_string = widget.text().replace(keyword, replace_with)
+                widget.setText(new_string)
+
 
     def save_settings(self):
         try:
