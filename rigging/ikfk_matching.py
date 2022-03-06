@@ -187,6 +187,15 @@ class TemplateToolWindow(QtWidgets.QDialog):
         
         print("Pole position: "+str(pole_vec))
         return pole_vec
+
+    def create_loc(self, start_joint, mid_joint, end_joint, offset=2):
+        joint1 = start_joint
+        joint2 = mid_joint
+        joint3 = end_joint
+        pole_vector_pos = self.get_pole_position(joint1, joint2, joint3, offset)
+        loc = cmds.spaceLocator()
+        cmds.move(pole_vector_pos[0], pole_vector_pos[1], pole_vector_pos[2], loc, absolute=True, worldSpace=True)
+        return loc
     
     def match_ikfk(self, limb_name):
         self.output_file_path = cmds.internalVar(userPrefDir=True)+"ikfk_settings_{}.json".format(limb_name)
@@ -231,14 +240,28 @@ class TemplateToolWindow(QtWidgets.QDialog):
             cmds.matchTransform(ik_ctrl, fk_ctrl_end)
 
             # Add condition to add rotation
-            offset_x = settings_dict.get("Offset X")+"deg"
-            offset_y = settings_dict.get("Offset Y")+"deg"
-            offset_z = settings_dict.get("Offset Z")+"deg"
+            if settings_dict.get("Offset X") == "":
+                offset_x = "0deg"
+            else:
+                offset_x = settings_dict.get("Offset X")+"deg"
+
+            if settings_dict.get("Offset Y") == "":
+                offset_y = "0deg"
+            else:
+                offset_y = settings_dict.get("Offset Y")+"deg"
+
+            if settings_dict.get("Offset Z") == "":
+                offset_z = "0deg"
+            else:
+                offset_z = settings_dict.get("Offset Z")+"deg"
+            
             cmds.rotate(offset_x, offset_y, offset_z, ik_ctrl, relative=True, objectSpace=True)
             # Pole vector
-            # pole_pos = self.get_pole_position(fk_ctrl_start, fk_ctrl_mid, fk_ctrl_end, 1)
+            # pole_pos = self.get_pole_position(fk_ctrl_start, fk_ctrl_mid, fk_ctrl_end, 2)
             # cmds.move(pole_pos[0], pole_pos[1], pole_pos[2], ik_pole_ctrl, absolute=True, worldSpace=True)
-            cmds.matchTransform(ik_pole_ctrl, fk_ctrl_mid)
+            pole_locator = self.create_loc(fk_ctrl_start, fk_ctrl_mid, fk_ctrl_end, 2)
+            cmds.matchTransform(ik_pole_ctrl, pole_locator)
+            cmds.delete(pole_locator)
 
         elif ikfk_attr_value == int(settings_dict.get("IK")):
             # Set attribute
