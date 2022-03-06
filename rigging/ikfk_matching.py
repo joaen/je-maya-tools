@@ -20,7 +20,7 @@ def maya_main_window():
 class TemplateToolWindow(QtWidgets.QDialog):
     def __init__(self):
         super(TemplateToolWindow, self).__init__(maya_main_window())
-        self.setWindowTitle("IK/FK Switch")
+        self.setWindowTitle("IK/FK match")
         
         # self.output_file_path = cmds.internalVar(userPrefDir=True)+"{}_settings.json".format(limb_name)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
@@ -33,7 +33,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
             self.setWindowFlags(QtCore.Qt.Tool)
  
     def create_ui_widgets(self):
-        self.template_label = QtWidgets.QLabel("Switch IK/FK:")
+        self.template_label = QtWidgets.QLabel("match IK/FK:")
 
         self.template_button1 = QtWidgets.QPushButton("RIGHT ARM")
         self.template_button1.setStyleSheet("background-color: lightgreen; color: black")
@@ -138,10 +138,10 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.settings3_button.clicked.connect(partial(self.open_settings_window, "RightLeg"))
         self.settings4_button.clicked.connect(partial(self.open_settings_window, "LeftLeg"))
 
-        self.template_button1.clicked.connect(partial(self.switch, "RightArm"))
-        self.template_button2.clicked.connect(partial(self.switch, "LeftArm"))
-        self.template_button3.clicked.connect(partial(self.switch, "RightLeg"))
-        self.template_button4.clicked.connect(partial(self.switch, "LeftLeg"))
+        self.template_button1.clicked.connect(partial(self.match_ikfk, "RightArm"))
+        self.template_button2.clicked.connect(partial(self.match_ikfk, "LeftArm"))
+        self.template_button3.clicked.connect(partial(self.match_ikfk, "RightLeg"))
+        self.template_button4.clicked.connect(partial(self.match_ikfk, "LeftLeg"))
         self.hide_checkbox.clicked.connect(self.toggle_settings)
         self.close_button.clicked.connect(self.close_ikfk_window)
 
@@ -173,7 +173,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.settings_window = SettingsWindow(limb_name)
         self.settings_window.show()
     
-    def switch(self, limb_name):
+    def match_ikfk(self, limb_name):
         self.output_file_path = cmds.internalVar(userPrefDir=True)+"ikfk_settings_{}.json".format(limb_name)
         settings_dict = json.load(open(self.output_file_path))
         # Attritbute
@@ -233,6 +233,8 @@ class SettingsWindow(QtWidgets.QDialog):
 
     textfield_widget_dict = OrderedDict([
         ("IKFK_blend_attr", ""),
+        ("IK", ""),
+        ("FK", ""),
         ("FK_ctrl_start", ""),
         ("FK_ctrl_mid", ""),
         ("FK_ctrl_end", ""),
@@ -240,7 +242,10 @@ class SettingsWindow(QtWidgets.QDialog):
         ("IK_joint_mid", ""),
         ("IK_joint_end", ""),
         ("IK_ctrl", ""),
-        ("IK_pole_ctrl", "")
+        ("IK_pole_ctrl", ""),
+        ("Offset X", ""),
+        ("Offset Y", ""),
+        ("Offset Z", "")
         # ("fk_joint_start", ""),
         # ("fk_joint_mid", ""),
         # ("fk_joint_end", "")
@@ -288,13 +293,37 @@ class SettingsWindow(QtWidgets.QDialog):
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(10, 20, 10, 10)
 
+        test_layout = QtWidgets.QHBoxLayout()
+        attr_layout = QtWidgets.QHBoxLayout()
         for key in self.textfield_widget_dict:
-            label = QtWidgets.QLabel(str(key))
-            label_layout = QtWidgets.QHBoxLayout()
-            label_layout.addWidget(label)
-            label_layout.addWidget(self.textfield_widget_dict[key])
-            main_layout.addLayout(label_layout)
+            if key == "IKFK_blend_attr" or key == "IK" or key == "FK":
+                label = QtWidgets.QLabel(str(key))
+                attr_layout.addWidget(label)
+                attr_layout.addWidget(self.textfield_widget_dict[key])
+                main_layout.addLayout(attr_layout)
+            elif key == "Offset X":
+                degree_label = QtWidgets.QLabel("Rotation offset on IK controller (Degrees):")
+                label = QtWidgets.QLabel(str(key))
+                test_layout.addWidget(label)
+                test_layout.addWidget(self.textfield_widget_dict[key])
+                main_layout.addSpacing(24)
+                main_layout.addWidget(degree_label)
+                main_layout.addLayout(test_layout)
+                main_layout.addSpacing(24)
+            elif key == "Offset Y" or key == "Offset Z":
+                label = QtWidgets.QLabel(str(key))
+                test_layout.addWidget(label)
+                test_layout.addWidget(self.textfield_widget_dict[key])
+                main_layout.addLayout(test_layout)
+            else:
+                label = QtWidgets.QLabel(str(key))
+                label_layout = QtWidgets.QHBoxLayout()
+                label_layout.addWidget(label)
+                label_layout.addWidget(self.textfield_widget_dict[key])
+                main_layout.addLayout(label_layout)
         
+        self.textfield_widget_dict.get("IK").setFixedWidth(24)
+        self.textfield_widget_dict.get("FK").setFixedWidth(24)
         main_layout.addLayout(button_layout)
         main_layout.addStretch()
  
