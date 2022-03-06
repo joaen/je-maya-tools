@@ -1,3 +1,21 @@
+'''
+Name: ikfk_matching
+Description: Universal ikfk matching tool for Maya, which is compatible with most character rigs.
+The tool is used to switch between ik and fk seamlessly without compromising the current pose. 
+ 
+Author: Joar Engberg 2022
+Installation:
+Add ikfk_matching.py to your Maya scripts folder.
+PC: (Username\Documents\maya\scripts).
+Mac: (Library\Preferences\Autodesk\maya\scripts)
+
+To start the tool simply run these lines in the script editor in Maya or add it to a shelf button:
+
+import ikfk_matching
+ikfk_matching.run()
+
+'''
+
 from collections import OrderedDict
 from functools import partial
 import sys
@@ -21,8 +39,6 @@ class TemplateToolWindow(QtWidgets.QDialog):
     def __init__(self):
         super(TemplateToolWindow, self).__init__(maya_main_window())
         self.setWindowTitle("IK/FK match")
-        
-        # self.output_file_path = cmds.internalVar(userPrefDir=True)+"{}_settings.json".format(limb_name)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.resize(364, 120)
         self.create_ui_widgets()
@@ -34,7 +50,6 @@ class TemplateToolWindow(QtWidgets.QDialog):
  
     def create_ui_widgets(self):
         self.template_label = QtWidgets.QLabel("match IK/FK:")
-
         self.template_button1 = QtWidgets.QPushButton("RIGHT ARM")
         self.template_button1.setStyleSheet("background-color: lightgreen; color: black")
         self.template_button1.setFixedWidth(120)
@@ -47,13 +62,11 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.template_button4 = QtWidgets.QPushButton("LEFT LEG")
         self.template_button4.setStyleSheet("background-color: salmon; color: black")
         self.template_button4.setFixedWidth(120)
-
         self.template_checkbox = QtWidgets.QCheckBox("TEMPLATE_CHECKBOX")
         self.template_combobox = QtWidgets.QComboBox()
         self.template_combobox.addItem("TEMPLATE_COMBOBOX_ITEM")
         self.template_textfield = QtWidgets.QLineEdit()
         self.template_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-
 
         # setting background color to push button when mouse hover over it
         icon_button_css = (
@@ -90,8 +103,6 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.close_button.setFixedWidth(100)
 
         self.hide_checkbox = QtWidgets.QCheckBox("Show settings")
-        # self.hide_checkbox.
-        # self.hide_checkbox.setChecked(True)
 
         self.settings1_button.setVisible(False)
         self.settings2_button.setVisible(False)
@@ -100,9 +111,7 @@ class TemplateToolWindow(QtWidgets.QDialog):
         
 
     def create_ui_layout(self):
-
         horizontal_layout1 = QtWidgets.QHBoxLayout()
-        # horizontal_layout1.setContentsMargins(30, 30, 30, 30)
         horizontal_layout1.addWidget(self.settings1_button)
         horizontal_layout1.addWidget(self.template_button1)
         horizontal_layout1.addSpacing(24)
@@ -116,7 +125,6 @@ class TemplateToolWindow(QtWidgets.QDialog):
         horizontal_layout2.addWidget(self.settings4_button)
         horizontal_layout2.addWidget(self.template_button4)
 
-
         horizontal_layout = QtWidgets.QHBoxLayout()
         horizontal_layout.addWidget(self.help_icon_button)
         horizontal_layout.addStretch()
@@ -125,7 +133,6 @@ class TemplateToolWindow(QtWidgets.QDialog):
 
         main_layout = QtWidgets.QVBoxLayout(self)
         main_layout.setContentsMargins(10, 20, 10, 10)
-
         main_layout.addLayout(horizontal_layout1)
         main_layout.addLayout(horizontal_layout2)
         main_layout.addSpacing(30)
@@ -142,11 +149,11 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.template_button2.clicked.connect(partial(self.match_ikfk, "LeftArm"))
         self.template_button3.clicked.connect(partial(self.match_ikfk, "RightLeg"))
         self.template_button4.clicked.connect(partial(self.match_ikfk, "LeftLeg"))
+
         self.hide_checkbox.clicked.connect(self.toggle_settings)
         self.close_button.clicked.connect(self.close_ikfk_window)
 
     def toggle_settings(self):
-
         if self.hide_checkbox.isChecked() == True:
             self.settings1_button.setVisible(True)
             self.settings2_button.setVisible(True) 
@@ -157,8 +164,6 @@ class TemplateToolWindow(QtWidgets.QDialog):
             self.settings2_button.setVisible(False) 
             self.settings3_button.setVisible(False) 
             self.settings4_button.setVisible(False)
-        # pass
- 
 
     def close_ikfk_window(self):
         self.close()
@@ -185,7 +190,6 @@ class TemplateToolWindow(QtWidgets.QDialog):
         # Get the pole vector position by aiming from the mid point towards joint2 position. Scale the vector using the offset float.
         pole_vec = mid_point_pos + (joint2_pos - mid_point_pos).normal() * ((joint2_pos - mid_point_pos).length() * offset)
         
-        # print("Pole position: "+str(pole_vec))
         return pole_vec
 
     def create_loc(self, start_joint, mid_joint, end_joint, offset=2):
@@ -198,48 +202,26 @@ class TemplateToolWindow(QtWidgets.QDialog):
         return loc
     
     def match_ikfk(self, limb_name):
-        self.output_file_path = cmds.internalVar(userPrefDir=True)+"ikfk_settings_{}.json".format(limb_name)
-        settings_dict = json.load(open(self.output_file_path))
-        # Attritbute
+        output_file_path = cmds.internalVar(userPrefDir=True)+"ikfk_settings_{}.json".format(limb_name)
+        settings_dict = json.load(open(output_file_path))
+        print("Loaded settings from: "+output_file_path)
+
         ikfk_attr_name = settings_dict.get("IKFK_blend_attr")
-        print("Loaded settings from: "+self.output_file_path)
-        # print(ikfk_attr_name)
-
         ikfk_attr_value = cmds.getAttr(ikfk_attr_name)
-
-        # # FK
-
         fk_ctrl_start = settings_dict.get("FK_ctrl_start")
         fk_ctrl_mid = settings_dict.get("FK_ctrl_mid")
         fk_ctrl_end = settings_dict.get("FK_ctrl_end")
-        
         ik_joint_start = settings_dict.get("IK_joint_start")
         ik_joint_mid = settings_dict.get("IK_joint_mid")
         ik_joint_end = settings_dict.get("IK_joint_end")
-
-        # IK 
         ik_ctrl = settings_dict.get("IK_ctrl")
         ik_pole_ctrl = settings_dict.get("IK_pole_ctrl")
 
-        # fk_joint_start = settings_dict.get("fk_joint_start")
-        # fk_joint_mid = settings_dict.get("fk_joint_mid")
-        # fk_joint_end = settings_dict.get("fk_joint_end")
-        # print(settings_dict.get("FK"))
-        # print(settings_dict.get("IK"))
-
         if ikfk_attr_value == int(settings_dict.get("FK")):
-            # Set attribute
             cmds.setAttr(ikfk_attr_name, 0)
-
-            # Create offset locator and move it to the target transform
-            # offset_loc = cmds.spaceLocator()
-            # cmds.matchTransform(offset_loc, fk_ctrl_end)
-
-
-            # Match the ik ctrl transform with the offset transform
             cmds.matchTransform(ik_ctrl, fk_ctrl_end)
 
-            # Add condition to add rotation
+            # Check rotation offset from settings file and add rotation to the IK ctrl
             if settings_dict.get("Offset X") == "":
                 offset_x = "0deg"
             else:
@@ -254,17 +236,15 @@ class TemplateToolWindow(QtWidgets.QDialog):
                 offset_z = "0deg"
             else:
                 offset_z = settings_dict.get("Offset Z")+"deg"
-            
+
             cmds.rotate(offset_x, offset_y, offset_z, ik_ctrl, relative=True, objectSpace=True)
-            # Pole vector
-            # pole_pos = self.get_pole_position(fk_ctrl_start, fk_ctrl_mid, fk_ctrl_end, 2)
-            # cmds.move(pole_pos[0], pole_pos[1], pole_pos[2], ik_pole_ctrl, absolute=True, worldSpace=True)
+
+            # Pole vector position
             pole_locator = self.create_loc(fk_ctrl_start, fk_ctrl_mid, fk_ctrl_end, 2)
             cmds.matchTransform(ik_pole_ctrl, pole_locator)
             cmds.delete(pole_locator)
 
         elif ikfk_attr_value == int(settings_dict.get("IK")):
-            # Set attribute
             cmds.setAttr(ikfk_attr_name, 1)
 
             cmds.matchTransform(fk_ctrl_start, ik_joint_start, rotation=True)
