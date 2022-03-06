@@ -9,10 +9,10 @@ Add ikfk_matching.py to your Maya scripts folder.
 PC: (Username\Documents\maya\scripts).
 Mac: (Library\Preferences\Autodesk\maya\scripts)
 
-To start the tool simply run these lines in the script editor in Maya or add it to a shelf button:
+To start the tool in Maya execute these lines in the script editor (or add them to a shelf button):
 
 import ikfk_matching
-ikfk_matching.run()
+ikfk_matching.start()
 
 '''
 
