@@ -274,11 +274,22 @@ class SettingsWindow(QtWidgets.QDialog):
 
         if cmds.about(macOS=True):
             self.setWindowFlags(QtCore.Qt.Tool)
-            
+
+    def load_settings(self, limb_name):
+        load_file_path = cmds.internalVar(userPrefDir=True)+"ikfk_settings_{}.json".format(limb_name)
+        file_path = json.load(open(load_file_path))
+        return file_path
+
+    def copy_settings(self, limb_name):
+        copied_dict = {}
+        copied_dict = self.load_settings(limb_name)
+        for key, widget in self.textfield_widget_dict.items():
+            widget.setText(copied_dict[key])
+        
     def create_ui_layout(self):
         settings_dict = {}
         try:
-            settings_dict = json.load(open(self.output_file_path))
+            settings_dict = self.load_settings(self.limb_name)
         except:
             pass
 
@@ -299,9 +310,9 @@ class SettingsWindow(QtWidgets.QDialog):
         button_layout.addWidget(self.close_button)
 
         main_layout = QtWidgets.QVBoxLayout(self)
-        main_layout.setContentsMargins(10, 20, 10, 10)
+        main_layout.setContentsMargins(10, 10, 10, 10)
 
-        self.settings_label = QtWidgets.QLabel(str(self.limb_name)+" settings")
+        self.settings_label = QtWidgets.QLabel(str(self.limb_name))
         self.settings_label.setStyleSheet("background-color: #5d5d5d; border: 1px solid #5d5d5d; border-radius: 2px;font-weight: bold;")
         self.settings_label.setFixedHeight(20)
         main_layout.addWidget(self.settings_label)
@@ -384,6 +395,11 @@ class SettingsWindow(QtWidgets.QDialog):
         self.save_button.clicked.connect(self.save_settings)
         self.close_button.clicked.connect(self.close_settings)
         self.replace_button.clicked.connect(self.search_and_replace)
+
+        self.copy_right_arm_button.clicked.connect(partial(self.copy_settings, "RightArm"))
+        self.copy_left_arm_button.clicked.connect(partial(self.copy_settings, "LeftArm"))
+        self.copy_right_leg_button.clicked.connect(partial(self.copy_settings, "RightLeg"))
+        self.copy_left_leg_button.clicked.connect(partial(self.copy_settings, "LeftLeg"))
 
     def close_settings(self):
         self.close()
