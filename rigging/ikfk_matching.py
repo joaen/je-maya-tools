@@ -25,6 +25,7 @@ from shiboken2 import wrapInstance
 from PySide2 import QtCore, QtGui, QtWidgets
 import json
 import maya.api.OpenMaya as om
+import maya.mel as mel
 
 
 def maya_main_window():
@@ -297,6 +298,7 @@ class SettingsWindow(QtWidgets.QDialog):
             widget.setText(copied_dict[key])
         
     def create_ui_layout(self):
+        self.action_dict = {}
         settings_dict = {}
         try:
             settings_dict = self.load_settings(self.limb_name)
@@ -359,9 +361,11 @@ class SettingsWindow(QtWidgets.QDialog):
                 main_layout.addLayout(label_layout)
                 action = self.textfield_widget_dict[key].addAction(QtGui.QIcon(":addCreateGeneric.png"), QtWidgets.QLineEdit.TrailingPosition)
                 action.setToolTip("Add name from selected object")
+                self.action_dict[key] = action
         
-        attr_action = self.textfield_widget_dict["IKFK_blend_attr"].addAction(QtGui.QIcon(":addCreateGeneric.png"), QtWidgets.QLineEdit.TrailingPosition)
-        attr_action.setToolTip("Add selected attribute from channelbox")
+        self.attr_action = self.textfield_widget_dict["IKFK_blend_attr"].addAction(QtGui.QIcon(":addCreateGeneric.png"), QtWidgets.QLineEdit.TrailingPosition)
+        self.attr_action.setToolTip("Add selected attribute from channelbox")
+        # action_list.append(attr_action)
 
         self.textfield_widget_dict.get("IK").setFixedWidth(24)
         self.textfield_widget_dict.get("FK").setFixedWidth(24)
@@ -415,6 +419,20 @@ class SettingsWindow(QtWidgets.QDialog):
         self.copy_left_arm_button.clicked.connect(partial(self.copy_settings, "LeftArm"))
         self.copy_right_leg_button.clicked.connect(partial(self.copy_settings, "RightLeg"))
         self.copy_left_leg_button.clicked.connect(partial(self.copy_settings, "LeftLeg"))
+
+        for key, action in self.action_dict.items():
+            action.triggered.connect(partial(self.selected_to_textfield, key))
+        self.attr_action.triggered.connect(self.selected_attr_to_textfield)
+    
+    def selected_attr_to_textfield(self):
+        selected_object = cmds.ls(selection=True)[0]
+        main_channelbox = mel.eval('$temp=$gChannelBoxName')
+        selected_channel = cmds.channelBox(main_channelbox, query=True, selectedMainAttributes=True)[0]
+        self.textfield_widget_dict["IKFK_blend_attr"].setText("{}.{}".format(selected_object, selected_channel))
+
+    def selected_to_textfield(self, textfield_key):
+        selection = cmds.ls(selection=True)[0]
+        self.textfield_widget_dict[textfield_key].setText(selection)
 
     def close_settings(self):
         self.close()
