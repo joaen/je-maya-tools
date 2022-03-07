@@ -38,7 +38,7 @@ def maya_main_window():
 class TemplateToolWindow(QtWidgets.QDialog):
     def __init__(self):
         super(TemplateToolWindow, self).__init__(maya_main_window())
-        self.setWindowTitle("IK/FK match")
+        self.setWindowTitle("ikfk_matching")
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.resize(280, 120)
         self.create_ui_widgets()
@@ -357,7 +357,12 @@ class SettingsWindow(QtWidgets.QDialog):
                 label_layout.addWidget(label)
                 label_layout.addWidget(self.textfield_widget_dict[key])
                 main_layout.addLayout(label_layout)
+                action = self.textfield_widget_dict[key].addAction(QtGui.QIcon(":addCreateGeneric.png"), QtWidgets.QLineEdit.TrailingPosition)
+                action.setToolTip("Add name from selected object")
         
+        attr_action = self.textfield_widget_dict["IKFK_blend_attr"].addAction(QtGui.QIcon(":addCreateGeneric.png"), QtWidgets.QLineEdit.TrailingPosition)
+        attr_action.setToolTip("Add selected attribute from channelbox")
+
         self.textfield_widget_dict.get("IK").setFixedWidth(24)
         self.textfield_widget_dict.get("FK").setFixedWidth(24)
         self.textfield_widget_dict.get("IK").setText(str(0))
