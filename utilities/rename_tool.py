@@ -5,7 +5,7 @@ import sys
 import maya.api.OpenMaya as om2
 import maya.cmds as cmds
 import maya.OpenMayaUI as omui
-from PySide2 import QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets, QtGui
 from shiboken2 import wrapInstance
 import re
 
@@ -26,9 +26,11 @@ class RenameTool(QtWidgets.QDialog):
 
         self.script_job_ids = []
         self.renamed_nodes = []
-        self.setWindowTitle("Search and replace string")
+        self.cached_selected = []
+
+        self.setWindowTitle("Search and replace name")
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
-        self.resize(300, 100)
+        self.resize(300, 300)
         self.create_ui_widgets()
         self.create_ui_layout()
         self.create_ui_connections()
@@ -39,7 +41,7 @@ class RenameTool(QtWidgets.QDialog):
         self.close_button = QtWidgets.QPushButton("Close")
         self.find_line = QtWidgets.QLineEdit()
         self.replace_line = QtWidgets.QLineEdit()
-        self.string_line = QtWidgets.QLineEdit()
+        self.string_line = QtWidgets.QTextEdit()
         self.case_checkbox = QtWidgets.QCheckBox()
         self.case_checkbox.setLayoutDirection(QtCore.Qt.RightToLeft)
         self.case_checkbox.setText("Ignore case:")
@@ -80,39 +82,32 @@ class RenameTool(QtWidgets.QDialog):
                 pass
 
     def on_name_changed(self):
-        selected = cmds.ls(sl=True)
-        selected_count = len(selected)
+        selected = cmds.ls(selection=True)
+        self.string_line.clear()
+
         try:
-            if selected_count == 1:
-                self.string_line.setText(selected[0])
-                self.string_line.setStyleSheet("background-color: #3A3A3A; color: #39FF14;")
-            if selected_count > 1:
-                self.string_line.setText("Successfully renamed {} objects!".format(len(self.renamed_nodes)))
-                self.string_line.setStyleSheet("background-color: #3A3A3A; color: #39FF14;")
+            for i in range(len(selected)):
+                # self.string_line.append(selected[i])
+
+                if selected[i] != self.cached_selected[i]:
+                    self.string_line.setTextColor("#39FF14")
+                    self.string_line.append(selected[i])
+                else:
+                    self.string_line.setTextColor("#FFFFFF")
+                    self.string_line.append(selected[i])
         except:
-            self.string_line.setStyleSheet("background-color: #FF0000; color: #000000")
+            self.string_line.setTextColor("#FF0000")
             self.string_line.setText("Error! Could not rename nodes.")
+        
+        self.string_line.setTextColor("#FFFFFF")
+
 
     def on_selection_changed(self):
-        selected = cmds.ls(sl=True)
-        selected_count = len(selected)
-        if selected_count == 1:
-            self.string_line.setText(selected[0])
-            self.string_line.setStyleSheet("background-color: #3A3A3A; color: #00FFFF;")
-        if selected_count > 1:
-            self.string_line.setText("Number of selected nodes: {}".format(selected_count))
-            self.string_line.setStyleSheet("background-color: #3A3A3A; color: #00FFFF;")
-        elif selected_count < 1:
-            self.string_line.setStyleSheet("background-color: #3A3A3A;")
-            self.string_line.setText("")
-
-    def get_find_string(self):
-        find_string = self.find_line.text()
-        return find_string
-    
-    def get_replace_string(self):
-        replace_string = self.replace_line.text()
-        return replace_string
+        selected = cmds.ls(selection=True)
+        self.string_line.clear()
+        self.string_line.setTextColor("#FFFFFF")
+        for sel in selected:
+            self.string_line.append(sel)
 
     def closeEvent(self, event):
         self.kill_script_job()
@@ -125,17 +120,14 @@ class RenameTool(QtWidgets.QDialog):
         except:
             pass
 
-    def get_case_checkbox(self):
-        checkbox_value = self.case_checkbox.isChecked()
-        return checkbox_value
-
     def rename_node(self):
-        selected = cmds.ls(sl=True, objectsOnly=True)
-        find = self.get_find_string()
-        replace_with = self.get_replace_string()
+        selected = cmds.ls(selection=True, objectsOnly=True)
+        self.cached_selected = selected
+        find = self.find_line.text()
+        replace_with = self.replace_line.text()
         self.renamed_nodes = []
 
-        if self.get_case_checkbox() == True:
+        if self.case_checkbox.isChecked() == True:
             for name in selected:
                 if find.lower() in name.lower():
                     # String replace doesn't have a ignore case flag so using re.sub instead
