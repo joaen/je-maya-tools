@@ -1,13 +1,10 @@
-from distutils.command import check
-from functools import partial
+import re
 import sys
-
-import maya.api.OpenMaya as om2
 import maya.cmds as cmds
 import maya.OpenMayaUI as omui
+from functools import partial
 from PySide2 import QtCore, QtWidgets, QtGui
 from shiboken2 import wrapInstance
-import re
 
 
 def maya_main_window():
