@@ -1,6 +1,8 @@
 import maya.mel as mel
 import maya.cmds as cmds
 
+# 
+
 def create_ribbonspone():
     joints = []
     dupes = []
