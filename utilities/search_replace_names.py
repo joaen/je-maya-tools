@@ -16,16 +16,16 @@ def maya_main_window():
         return wrapInstance(long(main_window), QtWidgets.QWidget) # type: ignore
 
 
-class RenameTool(QtWidgets.QDialog):
+class SearchReplaceTool(QtWidgets.QDialog):
 
     def __init__(self):
-        super(RenameTool, self).__init__(maya_main_window())
+        super(SearchReplaceTool, self).__init__(maya_main_window())
 
         self.script_job_ids = []
         self.renamed_nodes = []
         self.cached_selected = []
 
-        self.setWindowTitle("Search and replace name")
+        self.setWindowTitle("Search and replace string")
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.resize(300, 300)
         self.create_ui_widgets()
@@ -145,7 +145,7 @@ def start():
         search_replace_ui.deleteLater() # type: ignore
     except:
         pass
-    search_replace_ui = RenameTool()
+    search_replace_ui = SearchReplaceTool()
     search_replace_ui.show()
 
 if __name__ == "__main__":
