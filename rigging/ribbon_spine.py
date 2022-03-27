@@ -52,44 +52,51 @@ def create_ribbon():
         joint_pos = cmds.xform(j, query=True, translation=True, worldSpace=True)
         point_list.append(joint_pos)
     
+    # point_list 
     # point_list.append((0,0,0))
     # point_list.append((0,1,0))
-    # Create plane
-    curve = cmds.curve(degree=3, point=point_list)
-    curve_dupe = cmds.duplicate(curve)
-    cmds.move(1, 0, 0, curve, relative=True, objectSpace=True, worldSpaceDistance=True)
-    cmds.move(-1, 0, 0, curve_dupe, relative=True, objectSpace=True, worldSpaceDistance=True)
+    # ikHandle -sol ikSplineSolver -scv false -roc false -pcv false;
     
-    # plane = cmds.loft(curve_dupe, curve, constructionHistory=False, range=False, autoReverse=True)
-    # cmds.delete(curve, curve_dupe)
+
+    # Create plane
+    # curve = cmds.curve(degree=3, point=point_list)
+    temp_ik_handle = cmds.ikHandle(startJoint=selection[0], endEffector=selection[len(selection) - 1], sol="ikSplineSolver", simplifyCurve=False, rootOnCurve=False, parentCurve=False)
+    cmds.delete(temp_ik_handle[0], temp_ik_handle[1])
+    curve = temp_ik_handle[2]
+    curve_dupe = cmds.duplicate(curve)
+    cmds.move(0.5, 0, 0, curve, relative=True, objectSpace=True, worldSpaceDistance=True)
+    cmds.move(-0.5, 0, 0, curve_dupe, relative=True, objectSpace=True, worldSpaceDistance=True)
+    
+    plane = cmds.loft(curve_dupe, curve, constructionHistory=False, range=False, autoReverse=True)
+    cmds.delete(curve, curve_dupe)
 
     # Create hair
-    # cmds.select(plane, replace=True)
-    # mel.eval("createHair 1 5 10 0 0 0 0 5 0 2 1 1;")  
-    # cmds.delete("hairSystem1OutputCurves", "hairSystem1", "nucleus1")
+    cmds.select(plane, replace=True)
+    mel.eval("createHair 1 4 10 0 0 1 0 5 0 2 1 1;")  
+    cmds.delete("hairSystem1OutputCurves", "hairSystem1", "nucleus1")
 
-    # # Create joints
-    # folliclesList = cmds.listRelatives("hairSystem1Follicles", children=True)
-    # for i in folliclesList:
-    #     jnt = cmds.joint(p=(0, 0, 0))
+    # Create joints
+    folliclesList = cmds.listRelatives("hairSystem1Follicles", children=True)
+    for i in folliclesList:
+        jnt = cmds.joint(p=(0, 0, 0))
 
-    #     joints.append(jnt)
+        joints.append(jnt)
 
-    #     cmds.parent(jnt, i)
-    #     cmds.xform(jnt, t=(0, 0, 0) )
+        cmds.parent(jnt, i)
+        cmds.xform(jnt, t=(0, 0, 0) )
 
-    #     dupe = cmds.duplicate(jnt)[0]
-    #     dupes.append(dupe)
-    #     cmds.parent(dupe, world=True)
+        dupe = cmds.duplicate(jnt)[0]
+        dupes.append(dupe)
+        cmds.parent(dupe, world=True)
 
-    # cmds.skinCluster(dupes, plane)
+    cmds.skinCluster(dupes, plane)
 
-    # for i in dupes:
-    #     cmds.rename(i, "BindToPlane#")
+    for i in dupes:
+        cmds.rename(i, "BindToPlane#")
 
-    # for i in joints:
-    #     cmds.rename(i, "BindToGeo#")
+    for i in joints:
+        cmds.rename(i, "BindToGeo#")
 
 
 
-create_ribbonspone()
+create_ribbon()

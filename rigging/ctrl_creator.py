@@ -132,9 +132,9 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         self.square_button.clicked.connect(partial(self.create_controller, "square"))
         self.cube_button.clicked.connect(partial(self.create_controller, "cube"))
 
-        self.rotate_x_button.clicked.connect(partial(self.rotate_ctrl_shape, [45, 0, 0]))
-        self.rotate_y_button.clicked.connect(partial(self.rotate_ctrl_shape, [0, 45, 0]))
-        self.rotate_z_button.clicked.connect(partial(self.rotate_ctrl_shape, [0, 0, 45]))
+        self.rotate_x_button.clicked.connect(partial(self.rotate_ctrl_shape, "45deg", "0", "0"))
+        self.rotate_y_button.clicked.connect(partial(self.rotate_ctrl_shape, "0", "45deg", "0"))
+        self.rotate_z_button.clicked.connect(partial(self.rotate_ctrl_shape, "0", "0", "45deg"))
 
         self.scale_up_button.clicked.connect(partial(self.scale_ctrl_shape, 1.2))
         self.scale_down_button.clicked.connect(partial(self.scale_ctrl_shape, 0.8))
@@ -165,10 +165,10 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
             elif input_shape == "cube":
                 shape = self.create_cube()
 
-            cmds.rename(shape, transform+"_ctrl")
             offset_grp = cmds.group(shape)
-            cmds.rename(offset_grp, transform+"_ctrl_grp")
+            # cmds.rename(offset_grp, transform+"_ctrl_grp")
             cmds.matchTransform(offset_grp, transform)
+            # cmds.rename(shape, transform+"_ctrl")
             new_shapes_list.append(shape)
             if self.point_constraint_checkbox.isChecked() == True:
                 cmds.pointConstraint(shape, transform)
@@ -204,13 +204,13 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         for sel in stored_selection:
             cmds.select(sel, add=True)
 
-    def rotate_ctrl_shape(self, degrees):
+    def rotate_ctrl_shape(self, x, y, z):
         stored_selection = cmds.ls(selection=True)
 
         for ctrl in cmds.ls(selection=True):
             ctrl_pivot = cmds.xform(ctrl, query=True, translation=True, worldSpace=True)
             cmds.select(self.get_cvs(ctrl), replace=True)
-            cmds.rotate(degrees, relative=True, pivot=(ctrl_pivot))
+            cmds.rotate(x, y, z, relative=True, pivot=(ctrl_pivot))
 
         cmds.select(clear=True)
         for sel in stored_selection:
