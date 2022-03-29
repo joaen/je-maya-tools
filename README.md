@@ -1,2 +1,2 @@
 # je-maya-tools
- Tools and scripts for Autodesk Maya
+Misc tools and scripts for Autodesk Maya
