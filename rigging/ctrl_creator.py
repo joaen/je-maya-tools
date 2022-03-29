@@ -166,9 +166,7 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
                 shape = self.create_cube()
 
             offset_grp = cmds.group(shape)
-            # cmds.rename(offset_grp, transform+"_ctrl_grp")
             cmds.matchTransform(offset_grp, transform)
-            # cmds.rename(shape, transform+"_ctrl")
             new_shapes_list.append(shape)
             if self.point_constraint_checkbox.isChecked() == True:
                 cmds.pointConstraint(shape, transform)
@@ -178,6 +176,8 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
                 pass
             if self.lock_attr_checkbox.isChecked() == True:
                 self.hide_lock_attr(shape)
+            cmds.rename(offset_grp, transform+"_ctrl_grp")
+            cmds.rename(shape, transform+"_ctrl")
 
         cmds.select(new_shapes_list, replace=True)
     
