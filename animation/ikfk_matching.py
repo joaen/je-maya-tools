@@ -50,19 +50,14 @@ class TemplateToolWindow(QtWidgets.QDialog):
             self.setWindowFlags(QtCore.Qt.Tool)
  
     def create_ui_widgets(self):
-        # self.template_label = QtWidgets.QLabel("match IK/FK:")
         self.template_button1 = QtWidgets.QPushButton("RIGHT ARM")
         self.template_button1.setStyleSheet("background-color: lightgreen; color: black")
-        # self.template_button1.setFixedWidth(120)
         self.template_button2 = QtWidgets.QPushButton("LEFT ARM")
         self.template_button2.setStyleSheet("background-color: deepskyblue; color: black")
-        # self.template_button2.setFixedWidth(120)
         self.template_button3 = QtWidgets.QPushButton("RIGHT LEG")
         self.template_button3.setStyleSheet("background-color: lightgreen; color: black")
-        # self.template_button3.setFixedWidth(120)
         self.template_button4 = QtWidgets.QPushButton("LEFT LEG")
         self.template_button4.setStyleSheet("background-color: deepskyblue; color: black")
-        # self.template_button4.setFixedWidth(120)
         self.template_checkbox = QtWidgets.QCheckBox("TEMPLATE_CHECKBOX")
         self.template_combobox = QtWidgets.QComboBox()
         self.template_combobox.addItem("TEMPLATE_COMBOBOX_ITEM")
@@ -147,7 +142,6 @@ class TemplateToolWindow(QtWidgets.QDialog):
         main_layout.addLayout(vertical_layout)
         main_layout.addLayout(horizontal_layout2)
         main_layout.addSpacing(30)
-        # main_layout.addStretch()
         main_layout.addLayout(horizontal_layout)
  
     def create_ui_connections(self):
@@ -365,7 +359,6 @@ class SettingsWindow(QtWidgets.QDialog):
         
         self.attr_action = self.textfield_widget_dict["IKFK_blend_attr"].addAction(QtGui.QIcon(":addCreateGeneric.png"), QtWidgets.QLineEdit.TrailingPosition)
         self.attr_action.setToolTip("Add selected attribute from channelbox")
-        # action_list.append(attr_action)
 
         self.textfield_widget_dict.get("IK").setFixedWidth(24)
         self.textfield_widget_dict.get("FK").setFixedWidth(24)
@@ -450,6 +443,7 @@ class SettingsWindow(QtWidgets.QDialog):
 
     def save_settings(self):
         try:
+
             for key, value in self.textfield_widget_dict.iteritems():
                 self.output_data_dict[key] = value.text()
 
@@ -458,7 +452,8 @@ class SettingsWindow(QtWidgets.QDialog):
             print("Saved settings: "+self.output_file_path)
             self.close()
             self.deleteLater()
-        except:
+        except Exception as error:
+            print(error)
             cmds.warning("Can't save settings. Do you have permission to write to this file?")
             
 
