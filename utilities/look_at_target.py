@@ -1,3 +1,10 @@
+'''
+Name: look_at_target
+Description: This script will rotate an object to face another object. Using the Z-axis as the forward direction of the object being rotated.
+ 
+Author: Joar Engberg 2022
+'''
+
 import maya.cmds as cmds
 import maya.api.OpenMaya as om
 

@@ -17,6 +17,7 @@ import calculate_pole_vector
 calculate_pole_vector.get_position("pSphere1", "pSphere2", "pSphere1", offset=2)
 
 '''
+
 import maya.cmds as cmds
 import maya.api.OpenMaya as om
 

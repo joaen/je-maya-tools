@@ -1,3 +1,10 @@
+'''
+Name: search_replace_names
+Description: A tool for searching and replacing a string in the name of the selected nodes.
+ 
+Author: Joar Engberg 2022
+'''
+
 import re
 import sys
 import maya.cmds as cmds

@@ -4,6 +4,7 @@ Description: Universal ikfk matching tool for Maya, which is compatible with mos
 The tool is used to switch between ik and fk seamlessly without compromising the current pose. 
  
 Author: Joar Engberg 2022
+
 Installation:
 Add ikfk_matching.py to your Maya scripts folder.
 PC: (Username\Documents\maya\scripts).
