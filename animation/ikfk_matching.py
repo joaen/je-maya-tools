@@ -37,9 +37,9 @@ def maya_main_window():
     else:
         return wrapInstance(long(main_window), QtWidgets.QWidget) # type: ignore
 
-class TemplateToolWindow(QtWidgets.QDialog):
+class IKFKToolWindow(QtWidgets.QDialog):
     def __init__(self):
-        super(TemplateToolWindow, self).__init__(maya_main_window())
+        super(IKFKToolWindow, self).__init__(maya_main_window())
         self.setWindowTitle("ikfk_matching")
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.resize(280, 120)
@@ -51,19 +51,14 @@ class TemplateToolWindow(QtWidgets.QDialog):
             self.setWindowFlags(QtCore.Qt.Tool)
  
     def create_ui_widgets(self):
-        self.template_button1 = QtWidgets.QPushButton("RIGHT ARM")
-        self.template_button1.setStyleSheet("background-color: lightgreen; color: black")
-        self.template_button2 = QtWidgets.QPushButton("LEFT ARM")
-        self.template_button2.setStyleSheet("background-color: deepskyblue; color: black")
-        self.template_button3 = QtWidgets.QPushButton("RIGHT LEG")
-        self.template_button3.setStyleSheet("background-color: lightgreen; color: black")
-        self.template_button4 = QtWidgets.QPushButton("LEFT LEG")
-        self.template_button4.setStyleSheet("background-color: deepskyblue; color: black")
-        self.template_checkbox = QtWidgets.QCheckBox("TEMPLATE_CHECKBOX")
-        self.template_combobox = QtWidgets.QComboBox()
-        self.template_combobox.addItem("TEMPLATE_COMBOBOX_ITEM")
-        self.template_textfield = QtWidgets.QLineEdit()
-        self.template_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self.right_arm_button = QtWidgets.QPushButton("RIGHT ARM")
+        self.right_arm_button.setStyleSheet("background-color: lightgreen; color: black")
+        self.left_arm_button = QtWidgets.QPushButton("LEFT ARM")
+        self.left_arm_button.setStyleSheet("background-color: deepskyblue; color: black")
+        self.right_leg_button = QtWidgets.QPushButton("RIGHT LEG")
+        self.right_leg_button.setStyleSheet("background-color: lightgreen; color: black")
+        self.left_leg_button = QtWidgets.QPushButton("LEFT LEG")
+        self.left_leg_button.setStyleSheet("background-color: deepskyblue; color: black")
 
         # setting background color to push button when mouse hover over it
         icon_button_css = (
@@ -105,24 +100,23 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.settings2_button.setVisible(False)
         self.settings3_button.setVisible(False)
         self.settings4_button.setVisible(False)
-        
 
     def create_ui_layout(self):
         horizontal_layout1 = QtWidgets.QHBoxLayout()
         horizontal_layout1.addWidget(self.settings1_button)
-        horizontal_layout1.addWidget(self.template_button1)
+        horizontal_layout1.addWidget(self.right_arm_button)
 
         horizontal_layout2 = QtWidgets.QHBoxLayout()
         horizontal_layout2.addWidget(self.settings2_button)
-        horizontal_layout2.addWidget(self.template_button2)
+        horizontal_layout2.addWidget(self.left_arm_button)
 
         horizontal_layout3 = QtWidgets.QHBoxLayout()
         horizontal_layout3.addWidget(self.settings3_button)
-        horizontal_layout3.addWidget(self.template_button3)
+        horizontal_layout3.addWidget(self.right_leg_button)
 
         horizontal_layout4 = QtWidgets.QHBoxLayout()
         horizontal_layout4.addWidget(self.settings4_button)
-        horizontal_layout4.addWidget(self.template_button4)
+        horizontal_layout4.addWidget(self.left_leg_button)
 
         vertical_layout = QtWidgets.QVBoxLayout()
         vertical_layout.addLayout(horizontal_layout1)
@@ -151,10 +145,10 @@ class TemplateToolWindow(QtWidgets.QDialog):
         self.settings3_button.clicked.connect(partial(self.open_settings_window, "RightLeg"))
         self.settings4_button.clicked.connect(partial(self.open_settings_window, "LeftLeg"))
 
-        self.template_button1.clicked.connect(partial(self.match_ikfk, "RightArm"))
-        self.template_button2.clicked.connect(partial(self.match_ikfk, "LeftArm"))
-        self.template_button3.clicked.connect(partial(self.match_ikfk, "RightLeg"))
-        self.template_button4.clicked.connect(partial(self.match_ikfk, "LeftLeg"))
+        self.right_arm_button.clicked.connect(partial(self.match_ikfk, "RightArm"))
+        self.left_arm_button.clicked.connect(partial(self.match_ikfk, "LeftArm"))
+        self.right_leg_button.clicked.connect(partial(self.match_ikfk, "RightLeg"))
+        self.left_leg_button.clicked.connect(partial(self.match_ikfk, "LeftLeg"))
 
         self.hide_checkbox.clicked.connect(self.toggle_settings)
         self.close_button.clicked.connect(self.close_ikfk_window)
@@ -324,7 +318,7 @@ class SettingsWindow(QtWidgets.QDialog):
         self.settings_label.setFixedHeight(20)
         main_layout.addWidget(self.settings_label)
 
-        test_layout = QtWidgets.QHBoxLayout()
+        offset_layout = QtWidgets.QHBoxLayout()
         attr_layout = QtWidgets.QHBoxLayout()
         for key in self.textfield_widget_dict:
             if key == "IKFK_blend_attr" or key == "IK" or key == "FK":
@@ -337,17 +331,17 @@ class SettingsWindow(QtWidgets.QDialog):
                 degree_label.setStyleSheet("background-color: #5d5d5d; border: 1px solid #5d5d5d; border-radius: 2px;font-weight: bold;")
                 degree_label.setFixedHeight(20)
                 label = QtWidgets.QLabel(str(key))
-                test_layout.addWidget(label)
-                test_layout.addWidget(self.textfield_widget_dict[key])
+                offset_layout.addWidget(label)
+                offset_layout.addWidget(self.textfield_widget_dict[key])
                 main_layout.addSpacing(24)
                 main_layout.addWidget(degree_label)
-                main_layout.addLayout(test_layout)
+                main_layout.addLayout(offset_layout)
                 main_layout.addSpacing(24)
             elif key == "Offset Y" or key == "Offset Z":
                 label = QtWidgets.QLabel(str(key))
-                test_layout.addWidget(label)
-                test_layout.addWidget(self.textfield_widget_dict[key])
-                main_layout.addLayout(test_layout)
+                offset_layout.addWidget(label)
+                offset_layout.addWidget(self.textfield_widget_dict[key])
+                main_layout.addLayout(offset_layout)
             else:
                 label = QtWidgets.QLabel(str(key))
                 label_layout = QtWidgets.QHBoxLayout()
@@ -459,14 +453,14 @@ class SettingsWindow(QtWidgets.QDialog):
             
 
 def start():
-    global template_tool_ui
+    global ikfk_tool_ui
     try:
-        template_tool_ui.close()
-        template_tool_ui.deleteLater()
+        ikfk_tool_ui.close()
+        ikfk_tool_ui.deleteLater()
     except:
         pass
-    template_tool_ui = TemplateToolWindow()
-    template_tool_ui.show()
+    ikfk_tool_ui = IKFKToolWindow()
+    ikfk_tool_ui.show()
 
 if __name__ == "__main__":
     start()
