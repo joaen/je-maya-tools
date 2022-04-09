@@ -61,4 +61,5 @@ def create_ribbon():
         cmds.rename(ribbon_jnt_list[i], "geometry_control_jnt{}".format(i + 1))
 
 
-create_ribbon()
+if __name__ == "__main__":
+    create_ribbon()
