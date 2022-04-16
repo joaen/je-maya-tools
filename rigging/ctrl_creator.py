@@ -146,10 +146,10 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
 
     
     def get_cvs(self, object):
-        children = cmds.listRelatives(object, children=True)
+        children = cmds.listRelatives(object, type="shape", children=True)
         ctrl_vertices = []
         for c in children:
-            spans = int(cmds.getAttr(c+".spans"))
+            spans = int(cmds.getAttr(c+".spans")) + 1
             vertices = "{shape}.cv[0:{count}]".format(shape=c, count=spans)
             ctrl_vertices.append(vertices)
         return ctrl_vertices
