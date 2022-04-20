@@ -83,6 +83,8 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         self.rotate_z_button = QtWidgets.QPushButton("Z")
         self.rotate_z_button.setFixedWidth(30)
 
+        self.combine_button = QtWidgets.QPushButton("Combine shapes")
+
         # Create color buttons based on the color button dict
         self.color_button_list = []
         for n in range(0, 10):
@@ -108,9 +110,12 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         edit_layout.addWidget(self.rotate_x_button)
         edit_layout.addWidget(self.rotate_y_button)
         edit_layout.addWidget(self.rotate_z_button)
+        edit_layout.addStretch()
         edit_layout.addWidget(self.scale_label)
         edit_layout.addWidget(self.scale_up_button)
         edit_layout.addWidget(self.scale_down_button)
+        edit_layout.addStretch()
+        edit_layout.addWidget(self.combine_button)
 
         color_layout = QtWidgets.QHBoxLayout()
         color_layout.setSpacing(0)
@@ -139,6 +144,8 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
 
         self.scale_up_button.clicked.connect(partial(self.scale_ctrl_shape, 1.2))
         self.scale_down_button.clicked.connect(partial(self.scale_ctrl_shape, 0.8))
+
+        self.combine_button.clicked.connect(self.combine_selected)
 
         for n in range(0, 10):
             index = self.COLOR_DICT.get(self.COLOR_DICT_LIST[n])
@@ -169,10 +176,12 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
             offset_grp = cmds.group(shape)
             cmds.matchTransform(offset_grp, transform)
             new_shapes_list.append(shape)
-            if self.point_constraint_checkbox.isChecked() == True:
-                cmds.pointConstraint(shape, transform)
-            if self.orient_constraint_checkbox.isChecked() == True:
+            if self.point_constraint_checkbox.isChecked() == True and self.orient_constraint_checkbox.isChecked() == True:
+                cmds.parentConstraint(shape, transform)
+            elif self.point_constraint_checkbox.isChecked() == False and self.orient_constraint_checkbox.isChecked() == True:
                 cmds.orientConstraint(shape, transform)
+            elif self.point_constraint_checkbox.isChecked() == True and self.orient_constraint_checkbox.isChecked() == False:
+                cmds.pointConstraint(shape, transform)
             else:
                 pass
             if self.lock_attr_checkbox.isChecked() == True:
@@ -223,19 +232,27 @@ class CtrlCreatorWindow(QtWidgets.QDialog):
         for n in range(0, 5):
             circles.append(cmds.circle(normal=(0,0,0), center=(0,0,0))[0])
 
-        circles[0].setRotation([0, 45, 0])
-        circles[1].setRotation([0, -45, 0])
-        circles[2].setRotation([0, -90, 0])
-        circles[3].setRotation([90, 0, 0])
-        
-        # Combine circles into a sphere
-        shape_nodes = cmds.listRelatives(circles, shapes=True)
-        output_node = cmds.group(empty=True)
-        cmds.makeIdentity(circles, apply=True, t=True, r=True, s=True)
+        cmds.rotate(0, 45, 0, circles[0])
+        cmds.rotate(0, -45, 0, circles[1])
+        cmds.rotate(0, -90, 0, circles[2])
+        cmds.rotate(90, 0, 0, circles[3])
+
+        sphere = self.combine_shapes(circles)
+        return sphere
+
+    def combine_shapes(self, shapes):
+        shape_nodes = cmds.listRelatives(shapes, shapes=True)
+        output_node = cmds.group(empty=True, name="new_ctrl#")
+        cmds.makeIdentity(shapes, apply=True, translate=True, rotate=True, scale=True)
         cmds.parent(shape_nodes, output_node, shape=True, relative=True)
         cmds.delete(shape_nodes, constructionHistory=True)
-        cmds.delete(circles)
+        cmds.delete(shapes)
         return output_node
+
+    def combine_selected(self):
+        selection_list = cmds.ls(selection=True)
+        self.combine_shapes(selection_list)
+        cmds.select(clear=True)
 
     def set_ctrl_color(self, color_index):
         selection = cmds.ls(selection=True)
