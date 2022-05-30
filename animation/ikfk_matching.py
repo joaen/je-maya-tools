@@ -40,7 +40,8 @@ def maya_main_window():
 class IKFKToolWindow(QtWidgets.QDialog):
     def __init__(self):
         super(IKFKToolWindow, self).__init__(maya_main_window())
-        self.setWindowTitle("ikfk_matching")
+        self.setWindowTitle("IK/FK Matching")
+        self.setWindowIcon(QtGui.QIcon(":out_character.png"))
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.resize(280, 120)
         self.create_ui_widgets()
@@ -348,20 +349,14 @@ class SettingsWindow(QtWidgets.QDialog):
                 label_layout.addWidget(label)
                 label_layout.addWidget(self.textfield_widget_dict[key])
                 main_layout.addLayout(label_layout)
-                action = self.textfield_widget_dict[key].addAction(QtGui.QIcon(":addCreateGeneric.png"), QtWidgets.QLineEdit.TrailingPosition)
+                action = self.textfield_widget_dict[key].addAction(QtGui.QIcon(":addClip.png"), QtWidgets.QLineEdit.TrailingPosition)
                 action.setToolTip("Add name from selected object")
                 self.action_dict[key] = action
         
-        self.attr_action = self.textfield_widget_dict["IKFK_blend_attr"].addAction(QtGui.QIcon(":addCreateGeneric.png"), QtWidgets.QLineEdit.TrailingPosition)
+        self.attr_action = self.textfield_widget_dict["IKFK_blend_attr"].addAction(QtGui.QIcon(":addClip.png"), QtWidgets.QLineEdit.TrailingPosition)
         self.attr_action.setToolTip("Add selected attribute from channelbox")
-
         self.textfield_widget_dict.get("IK").setFixedWidth(24)
         self.textfield_widget_dict.get("FK").setFixedWidth(24)
-        self.textfield_widget_dict.get("IK").setText(str(0))
-        self.textfield_widget_dict.get("FK").setText(str(0))
-        self.textfield_widget_dict.get("Offset X").setText(str(0))
-        self.textfield_widget_dict.get("Offset Y").setText(str(0))
-        self.textfield_widget_dict.get("Offset Z").setText(str(0))
 
         search_row = QtWidgets.QHBoxLayout()
         self.keyword_label = QtWidgets.QLabel("Search for:")
