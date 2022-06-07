@@ -185,18 +185,12 @@ class IKFKToolWindow(QtWidgets.QDialog):
         joint2_point = OpenMaya.MVector(cmds.xform(mid_joint, query=True, worldSpace=True, translation=True))
         joint3_point = OpenMaya.MVector(cmds.xform(end_joint, query=True, worldSpace=True, translation=True))
 
-        # Get the average distance between joints
         average_distance = ((joint3_point - joint2_point).length() + (joint1_point - joint2_point).length()) / 2
-
-        # Create vectors pointing from joint2 towards joint3 and joint2 towards joint1. Scale the vectors using the average distance.
         start_joint_vector = joint2_point + (joint1_point - joint2_point).normal() * average_distance
         end_joint_vector = joint2_point + (joint3_point - joint2_point).normal() * average_distance
-
-        # Create a new vector pointing between the start_joint_vector and end_joint_vector, and then scale it 50%.
         mid_point = start_joint_vector + (end_joint_vector - start_joint_vector).normal() * ((end_joint_vector - start_joint_vector).length() * 0.5)
-
-        # Create a vector pointing from the mid point towards joint 2 and scale it using the average distance
         pole_vector = mid_point + (joint2_point - mid_point).normal() * average_distance
+
         return pole_vector
 
     def create_loc(self, start_joint, mid_joint, end_joint, offset=2):
