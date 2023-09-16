@@ -11,11 +11,11 @@ based on the input rotation values and then returns a MMatrix.
 
 '''
 
-def rotate_around(rotate_transform, pivot_transform, degree_x=0, degree_y=0, degree_z=0):
+def rotate_around(rotate_transform, pivot_transform, rotation_x=0, rotation_y=0, rotation_z=0):
 
-    radian_x = math.radians(degree_x)
-    radian_y = math.radians(degree_y)
-    radian_z = math.radians(degree_z)
+    radian_x = math.radians(rotation_x)
+    radian_y = math.radians(rotation_y)
+    radian_z = math.radians(rotation_z)
 
     rx_a = [1, 0, 0, 0]
     rx_b = [0, math.cos(radian_x), (-math.sin(radian_x)), 0]
@@ -44,6 +44,6 @@ def rotate_around(rotate_transform, pivot_transform, degree_x=0, degree_y=0, deg
     return output_matrix
 
 # Example code:
-# matrix = rotate_around(rotate_transform="pSphere1", pivot_transform="pCube1", degree_y=45)
+# matrix = rotate_around(rotate_transform="pSphere1", pivot_transform="pCube1", rotation_y=45)
 # new_locator = pm.spaceLocator()
 # pm.xform(new_locator, matrix=matrix)
