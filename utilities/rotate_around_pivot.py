@@ -10,7 +10,6 @@ Takes two transforms and euler angles as input and rotates the first transform a
 '''
 
 
-
 def rotate_around_pivot(x, y, z, rotate_transform, pivot):
     # Euler angles in degrees (X, Y, Z)
     euler_deg = [x, y, z]
