@@ -1,8 +1,17 @@
 import maya.api.OpenMaya as om
 import pymel.core as pm
 
+'''
+Author: Joar Engberg 2023
 
-def rotate_around_pivot(x, y, z, pivot, rotate_transform):
+Description:
+Takes two transforms and euler angles as input and rotates the first transform around the second transform.
+
+'''
+
+
+
+def rotate_around_pivot(x, y, z, rotate_transform, pivot):
     # Euler angles in degrees (X, Y, Z)
     euler_deg = [x, y, z]
 
@@ -37,4 +46,4 @@ def rotate_around_pivot(x, y, z, pivot, rotate_transform):
     pm.xform(rotate_transform, translation=new_pos)
 
 # Example code:
-# rotate_around_pivot(0, 0, 90, "earth_mesh", "sun_mesh")
+# rotate_around_pivot(0, 0, 90, "sun_mesh", "earth_mesh")
