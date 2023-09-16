@@ -9,12 +9,14 @@ def rotate_around_pivot(x, y, z, pivot, rotate_transform):
     # Convert degrees to radians
     euler_rad = [angle * (3.141592653589793 / 180.0) for angle in euler_deg]
 
+    # Move object to pivot origin and store direction and position vector
     pivot_vec = om.MVector(pm.xform(pivot, q=True, worldSpace=True, translation=True))
     transform_vec = om.MVector(pm.xform(rotate_transform, worldSpace=True, q=True, translation=True))
     direction = (transform_vec - pivot_vec)
     diff = (pivot_vec - transform_vec)
     pm.xform(rotate_transform, worldSpace=True, translation=diff)
     
+    # Rotate object
     current_rotation = pm.xform(rotate_transform, query=True, worldSpace=True, rotation=True)
     pm.xform(rotate_transform,
             worldSpace=True,
@@ -24,7 +26,7 @@ def rotate_around_pivot(x, y, z, pivot, rotate_transform):
                 current_rotation[2] + euler_deg[2]
                 ])
 
-    # Create qauternion from euler angles
+    # Create quaternion from euler angles
     quaternion = om.MEulerRotation(euler_rad).asQuaternion()
     new_direction = direction.rotateBy(quaternion)
 
