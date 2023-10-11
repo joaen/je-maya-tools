@@ -1,49 +1,37 @@
-import math
-import maya.api.OpenMaya as om
-import pymel.core as pm
-
 '''
-Author: Joar Engberg 2022
+Author: Joar Engberg 2023
 
 Description:
-Takes two transforms and calculates how the rotate transform rotates around the pivot transform
-based on the input rotation values and then returns a MMatrix.
+Rotates the rotate transform around the pivot transform using vectors.
 
 '''
 
-def rotate_around(rotate_transform, pivot_transform, rotation_x=0, rotation_y=0, rotation_z=0):
+import maya.api.OpenMaya as om
+import pymel.core as pm
+import math
 
-    radian_x = math.radians(rotation_x)
-    radian_y = math.radians(rotation_y)
-    radian_z = math.radians(rotation_z)
 
-    rx_a = [1, 0, 0, 0]
-    rx_b = [0, math.cos(radian_x), (-math.sin(radian_x)), 0]
-    rx_c = [0, math.sin(radian_x), math.cos(radian_x), 0]
-    rx_d = [0, 0, 0, 1]
-
-    ry_a = [math.cos(radian_y), 0, math.sin(radian_y), 0]
-    ry_b = [0, 1, 0, 0]
-    ry_c = [(-math.sin(radian_y)), 0, math.cos(radian_y), 0]
-    ry_d = [0, 0, 0, 1]
-
-    rz_a = [math.cos(radian_z), (-math.sin(radian_z)), 0, 0]
-    rz_b = [math.sin(radian_z), math.cos(radian_z), 0, 0]
-    rz_c = [0, 0, 1, 0]
-    rz_d = [0, 0, 0, 1]
-
-    rotate_matrix = om.MMatrix(pm.xform(rotate_transform, query=True, matrix=True))
-    pivot_matrix = om.MMatrix(pm.xform(pivot_transform, query=True, matrix=True))
+def rotate_around_pivot(x, y, z, rotate_transform, pivot_transform):
+    # Move object to pivot origin and store direction and position vector
+    pivot_vec = om.MVector(pm.xform(pivot_transform, query=True, worldSpace=True, translation=True))
+    transform_vec = om.MVector(pm.xform(rotate_transform, worldSpace=True, query=True, translation=True))
+    difference = (transform_vec - pivot_vec)
+    direction = difference.normal()
+    pm.xform(rotate_transform, worldSpace=True, translation=difference)
     
-    rot_x = om.MMatrix([rx_a, rx_b, rx_c, rx_d])
-    rot_y = om.MMatrix([ry_a, ry_b, ry_c, ry_d])
-    rot_z = om.MMatrix([rz_a, rz_b, rz_c, rz_d])
+    # Rotate transform
+    current_rotation = pm.xform(rotate_transform, query=True, worldSpace=True, rotation=True)
+    pm.xform(rotate_transform, worldSpace=True, rotation=[current_rotation[0] + x, current_rotation[1] + y, current_rotation[2] + z])
 
-    output_matrix = om.MMatrix(rotate_matrix * pivot_matrix.inverse() * rot_x * rot_y * rot_z * pivot_matrix)
+    # Create quaternion and transform the direction vector
+    quaternion = om.MEulerRotation(math.radians(x), math.radians(y), math.radians(z)).asQuaternion()
+    new_direction = direction.rotateBy(quaternion)
 
-    return output_matrix
+    # Calculate new position
+    new_pos = pivot_vec + new_direction * difference.length()
+    
+    # Set new position
+    pm.xform(rotate_transform, translation=new_pos)
 
 # Example code:
-# matrix = rotate_around(rotate_transform="pSphere1", pivot_transform="pCube1", rotation_y=45)
-# new_locator = pm.spaceLocator()
-# pm.xform(new_locator, matrix=matrix)
+# rotate_around_pivot(0, 0, 30, "earth", "sun")
